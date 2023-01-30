@@ -17,6 +17,6 @@
 
 ### Description of Entity Relationship 
 
-- accounts (**aid**, username, password, email)
-- profiles (**pid**, aid, first_name, second_name, surname, description, address, latitude, longitude)
-    - aid is foreign key referring accounts
+- accounts (**aid**, username, password, email, phone_prefix, phone_number)
+- profiles (**pid**, aid, first_name, second_name, surname, description, address, addr_latitude, addr_longitude)
+    - aid is foreign key, referring accounts
