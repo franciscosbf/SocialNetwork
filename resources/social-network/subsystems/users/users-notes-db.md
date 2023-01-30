@@ -7,7 +7,7 @@
 
 ### Profiles
 
-- Public info which describes de user.
+- Public info which describes the user.
 - Address is composed by latitude and longitude and created depending on some external service which provides geodeconding based in a given address.
 
 ### Hierarchy between *Accounts* and *Profiles*
