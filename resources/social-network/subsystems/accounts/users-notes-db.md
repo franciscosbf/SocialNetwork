@@ -3,7 +3,8 @@
 ### Accounts
 
 - Main and personal info of user.
-- *username* must be unique.
+- *username* and *email* must be unique.
+- each pair (*username*, *email*) must be unique.
 - Contains attributes related to security and privacy.
 
 ### Profiles
