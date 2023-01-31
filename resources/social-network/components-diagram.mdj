@@ -63,7 +63,7 @@
 											"top": 729,
 											"width": 999,
 											"height": 14,
-											"text": "Users"
+											"text": "Accounts"
 										},
 										{
 											"_type": "LabelView",
@@ -6808,7 +6808,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Users",
+					"name": "Accounts",
 					"stereotype": "subsystem",
 					"attributes": [
 						{
