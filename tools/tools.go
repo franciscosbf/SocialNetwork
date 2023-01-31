@@ -9,4 +9,5 @@ import (
 
 	_ "github.com/jackc/pgx/v5"             // PostgresSQL db driver
 	_ "github.com/kyleconroy/sqlc/cmd/sqlc" // Type-Safe SQL generator
+	_ "github.com/twpayne/go-geom"          // For geometry types
 )
