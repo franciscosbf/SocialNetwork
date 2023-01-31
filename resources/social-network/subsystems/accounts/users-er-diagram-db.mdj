@@ -479,7 +479,8 @@
 									},
 									"name": "email",
 									"type": "VARCHAR",
-									"length": "320"
+									"length": "320",
+									"unique": true
 								},
 								{
 									"_type": "ERDColumn",
