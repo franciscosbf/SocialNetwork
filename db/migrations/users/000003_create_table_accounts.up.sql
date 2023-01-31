@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS users_info.accounts (
     phone_number INTEGER,
 
     PRIMARY KEY (aid),
-    UNIQUE (username)
+    UNIQUE (username), UNIQUE (email),
+    UNIQUE (username, email)
 );
