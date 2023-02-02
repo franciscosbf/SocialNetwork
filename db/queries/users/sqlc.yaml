@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "qs"
+    schema: "../../migrations/users"
+    gen:
+      go:
+        package: "db"
+        out: "../../../internal/subsystems/accounts/users/db"
+        sql_package: "pgx/v4"
+        overrides:
+          - db_type: "geography"
+            go_type: "github.com/twpayne/go-geom.MultiPolygon"
+            nullable: true
