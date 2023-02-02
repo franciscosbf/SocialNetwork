@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS users_info.accounts (
-    aid BIGSERIAL,
+    aid UUID DEFAULT gen_random_uuid(),
     username VARCHAR(30) NOT NULL,
     email VARCHAR(320) NOT NULL,
     password TEXT NOT NULL,

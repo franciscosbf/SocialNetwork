@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users_info.profiles (
-    pid BIGSERIAL,
-    aid BIGINT,
+    pid UUID DEFAULT gen_random_uuid(),
+    aid UUID,
     description VARCHAR(300),
     first_name TEXT NOT NULL,
     middle_name TEXT,
