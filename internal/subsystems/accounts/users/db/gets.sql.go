@@ -75,50 +75,17 @@ func (q *Queries) GetAccountPhone(ctx context.Context, aid uuid.UUID) (GetAccoun
 	return i, err
 }
 
-const getProfileFullName = `-- name: GetProfileFullName :one
-SELECT first_name, middle_name, surname
+const getProfileDescription = `-- name: GetProfileDescription :one
+SELECT description
 FROM users_info.profiles
 WHERE aid = $1
 `
 
-type GetProfileFullNameRow struct {
-	FirstName  string
-	MiddleName sql.NullString
-	Surname    string
-}
-
-func (q *Queries) GetProfileFullName(ctx context.Context, aid uuid.NullUUID) (GetProfileFullNameRow, error) {
-	row := q.db.QueryRow(ctx, getProfileFullName, aid)
-	var i GetProfileFullNameRow
-	err := row.Scan(&i.FirstName, &i.MiddleName, &i.Surname)
-	return i, err
-}
-
-const getProfileInfo = `-- name: GetProfileInfo :one
-SELECT first_name, middle_name, surname, location, description
-FROM users_info.profiles
-WHERE aid = $1
-`
-
-type GetProfileInfoRow struct {
-	FirstName   string
-	MiddleName  sql.NullString
-	Surname     string
-	Location    geom.MultiPolygon
-	Description sql.NullString
-}
-
-func (q *Queries) GetProfileInfo(ctx context.Context, aid uuid.NullUUID) (GetProfileInfoRow, error) {
-	row := q.db.QueryRow(ctx, getProfileInfo, aid)
-	var i GetProfileInfoRow
-	err := row.Scan(
-		&i.FirstName,
-		&i.MiddleName,
-		&i.Surname,
-		&i.Location,
-		&i.Description,
-	)
-	return i, err
+func (q *Queries) GetProfileDescription(ctx context.Context, aid uuid.NullUUID) (sql.NullString, error) {
+	row := q.db.QueryRow(ctx, getProfileDescription, aid)
+	var description sql.NullString
+	err := row.Scan(&description)
+	return description, err
 }
 
 const getProfileLocation = `-- name: GetProfileLocation :one
@@ -134,22 +101,23 @@ func (q *Queries) GetProfileLocation(ctx context.Context, aid uuid.NullUUID) (ge
 	return location, err
 }
 
-const getProfileSortName = `-- name: GetProfileSortName :one
+const getProfileName = `-- name: GetProfileName :one
 
-SELECT first_name, surname
+SELECT first_name, middle_name, surname
 FROM users_info.profiles
 WHERE aid = $1
 `
 
-type GetProfileSortNameRow struct {
-	FirstName string
-	Surname   string
+type GetProfileNameRow struct {
+	FirstName  string
+	MiddleName sql.NullString
+	Surname    string
 }
 
 // Profiles related queries.
-func (q *Queries) GetProfileSortName(ctx context.Context, aid uuid.NullUUID) (GetProfileSortNameRow, error) {
-	row := q.db.QueryRow(ctx, getProfileSortName, aid)
-	var i GetProfileSortNameRow
-	err := row.Scan(&i.FirstName, &i.Surname)
+func (q *Queries) GetProfileName(ctx context.Context, aid uuid.NullUUID) (GetProfileNameRow, error) {
+	row := q.db.QueryRow(ctx, getProfileName, aid)
+	var i GetProfileNameRow
+	err := row.Scan(&i.FirstName, &i.MiddleName, &i.Surname)
 	return i, err
 }

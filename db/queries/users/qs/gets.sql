@@ -18,12 +18,7 @@ WHERE aid = @aid;
 
 -- Profiles related queries.
 
--- name: GetProfileSortName :one
-SELECT first_name, surname
-FROM users_info.profiles
-WHERE aid = @aid;
-
--- name: GetProfileFullName :one
+-- name: GetProfileName :one
 SELECT first_name, middle_name, surname
 FROM users_info.profiles
 WHERE aid = @aid;
@@ -33,7 +28,7 @@ SELECT location
 FROM users_info.profiles
 WHERE aid = @aid;
 
--- name: GetProfileInfo :one
-SELECT first_name, middle_name, surname, location, description
+-- name: GetProfileDescription :one
+SELECT description
 FROM users_info.profiles
 WHERE aid = @aid;
