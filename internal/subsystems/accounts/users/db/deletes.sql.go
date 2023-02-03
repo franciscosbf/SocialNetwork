@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const removeAccount = `-- name: RemoveAccount :exec
@@ -15,7 +16,7 @@ DELETE FROM users_info.accounts
 WHERE aid = $1
 `
 
-func (q *Queries) RemoveAccount(ctx context.Context, aid int64) error {
+func (q *Queries) RemoveAccount(ctx context.Context, aid uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeAccount, aid)
 	return err
 }
@@ -25,7 +26,7 @@ DELETE FROM users_info.profiles
 WHERE aid = $1
 `
 
-func (q *Queries) RemoveProfile(ctx context.Context, aid sql.NullInt64) error {
+func (q *Queries) RemoveProfile(ctx context.Context, aid uuid.NullUUID) error {
 	_, err := q.db.Exec(ctx, removeProfile, aid)
 	return err
 }

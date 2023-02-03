@@ -7,11 +7,12 @@ package db
 import (
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/twpayne/go-geom"
 )
 
 type UsersInfoAccount struct {
-	Aid         int64
+	Aid         uuid.UUID
 	Username    string
 	Email       string
 	Password    string
@@ -20,8 +21,8 @@ type UsersInfoAccount struct {
 }
 
 type UsersInfoProfile struct {
-	Pid         int64
-	Aid         sql.NullInt64
+	Pid         uuid.UUID
+	Aid         uuid.NullUUID
 	Description sql.NullString
 	FirstName   string
 	MiddleName  sql.NullString

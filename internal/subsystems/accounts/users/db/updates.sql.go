@@ -9,7 +9,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/twpayne/go-geom"
+	"github.com/google/uuid"
 )
 
 const updateAccountPassword = `-- name: UpdateAccountPassword :exec
@@ -20,7 +20,7 @@ WHERE aid = $2
 
 type UpdateAccountPasswordParams struct {
 	Password string
-	Aid      int64
+	Aid      uuid.UUID
 }
 
 func (q *Queries) UpdateAccountPassword(ctx context.Context, arg UpdateAccountPasswordParams) error {
@@ -37,7 +37,7 @@ WHERE aid = $2
 
 type UpdateAccountUsernameParams struct {
 	Username string
-	Aid      int64
+	Aid      uuid.UUID
 }
 
 // Account related queries.
@@ -55,7 +55,7 @@ WHERE aid = $2
 
 type UpdateProfileDescriptionParams struct {
 	Description sql.NullString
-	Aid         sql.NullInt64
+	Aid         uuid.NullUUID
 }
 
 // Profile related queries.
@@ -72,7 +72,7 @@ WHERE aid = $2
 
 type UpdateProfileFirstNameParams struct {
 	Firstname string
-	Aid       sql.NullInt64
+	Aid       uuid.NullUUID
 }
 
 func (q *Queries) UpdateProfileFirstName(ctx context.Context, arg UpdateProfileFirstNameParams) error {
@@ -82,17 +82,18 @@ func (q *Queries) UpdateProfileFirstName(ctx context.Context, arg UpdateProfileF
 
 const updateProfileLocation = `-- name: UpdateProfileLocation :exec
 UPDATE users_info.profiles
-SET location = $1
-WHERE aid = $2
+SET location = ST_Point($1, $2)::geography
+WHERE aid = $3
 `
 
 type UpdateProfileLocationParams struct {
-	Location geom.MultiPolygon
-	Aid      sql.NullInt64
+	Latitude  interface{}
+	Longitude interface{}
+	Aid       uuid.NullUUID
 }
 
 func (q *Queries) UpdateProfileLocation(ctx context.Context, arg UpdateProfileLocationParams) error {
-	_, err := q.db.Exec(ctx, updateProfileLocation, arg.Location, arg.Aid)
+	_, err := q.db.Exec(ctx, updateProfileLocation, arg.Latitude, arg.Longitude, arg.Aid)
 	return err
 }
 
@@ -104,7 +105,7 @@ WHERE aid = $2
 
 type UpdateProfileMiddleNameParams struct {
 	Middlename sql.NullString
-	Aid        sql.NullInt64
+	Aid        uuid.NullUUID
 }
 
 func (q *Queries) UpdateProfileMiddleName(ctx context.Context, arg UpdateProfileMiddleNameParams) error {
@@ -120,7 +121,7 @@ WHERE aid = $2
 
 type UpdateProfileSurnameParams struct {
 	Surname string
-	Aid     sql.NullInt64
+	Aid     uuid.NullUUID
 }
 
 func (q *Queries) UpdateProfileSurname(ctx context.Context, arg UpdateProfileSurnameParams) error {

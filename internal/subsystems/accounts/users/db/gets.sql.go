@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/twpayne/go-geom"
 )
 
@@ -20,7 +21,7 @@ WHERE username = $1
 `
 
 type GetAccountInternalsRow struct {
-	Aid   int64
+	Aid   uuid.UUID
 	Email string
 }
 
@@ -45,7 +46,7 @@ type GetAccountInternalsAuthParams struct {
 }
 
 type GetAccountInternalsAuthRow struct {
-	Aid   int64
+	Aid   uuid.UUID
 	Email string
 }
 
@@ -67,7 +68,7 @@ type GetAccountPhoneRow struct {
 	PhoneNumber sql.NullInt32
 }
 
-func (q *Queries) GetAccountPhone(ctx context.Context, aid int64) (GetAccountPhoneRow, error) {
+func (q *Queries) GetAccountPhone(ctx context.Context, aid uuid.UUID) (GetAccountPhoneRow, error) {
 	row := q.db.QueryRow(ctx, getAccountPhone, aid)
 	var i GetAccountPhoneRow
 	err := row.Scan(&i.PhonePrefix, &i.PhoneNumber)
@@ -86,7 +87,7 @@ type GetProfileFullNameRow struct {
 	Surname    string
 }
 
-func (q *Queries) GetProfileFullName(ctx context.Context, aid sql.NullInt64) (GetProfileFullNameRow, error) {
+func (q *Queries) GetProfileFullName(ctx context.Context, aid uuid.NullUUID) (GetProfileFullNameRow, error) {
 	row := q.db.QueryRow(ctx, getProfileFullName, aid)
 	var i GetProfileFullNameRow
 	err := row.Scan(&i.FirstName, &i.MiddleName, &i.Surname)
@@ -107,7 +108,7 @@ type GetProfileInfoRow struct {
 	Description sql.NullString
 }
 
-func (q *Queries) GetProfileInfo(ctx context.Context, aid sql.NullInt64) (GetProfileInfoRow, error) {
+func (q *Queries) GetProfileInfo(ctx context.Context, aid uuid.NullUUID) (GetProfileInfoRow, error) {
 	row := q.db.QueryRow(ctx, getProfileInfo, aid)
 	var i GetProfileInfoRow
 	err := row.Scan(
@@ -126,7 +127,7 @@ FROM users_info.profiles
 WHERE aid = $1
 `
 
-func (q *Queries) GetProfileLocation(ctx context.Context, aid sql.NullInt64) (geom.MultiPolygon, error) {
+func (q *Queries) GetProfileLocation(ctx context.Context, aid uuid.NullUUID) (geom.MultiPolygon, error) {
 	row := q.db.QueryRow(ctx, getProfileLocation, aid)
 	var location geom.MultiPolygon
 	err := row.Scan(&location)
@@ -146,7 +147,7 @@ type GetProfileSortNameRow struct {
 }
 
 // Profiles related queries.
-func (q *Queries) GetProfileSortName(ctx context.Context, aid sql.NullInt64) (GetProfileSortNameRow, error) {
+func (q *Queries) GetProfileSortName(ctx context.Context, aid uuid.NullUUID) (GetProfileSortNameRow, error) {
 	row := q.db.QueryRow(ctx, getProfileSortName, aid)
 	var i GetProfileSortNameRow
 	err := row.Scan(&i.FirstName, &i.Surname)

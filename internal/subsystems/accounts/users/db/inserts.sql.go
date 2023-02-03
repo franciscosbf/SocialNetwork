@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const insertNewAccount = `-- name: InsertNewAccount :one
@@ -24,7 +26,7 @@ type InsertNewAccountParams struct {
 	PhoneNumber sql.NullInt32
 }
 
-func (q *Queries) InsertNewAccount(ctx context.Context, arg InsertNewAccountParams) (int64, error) {
+func (q *Queries) InsertNewAccount(ctx context.Context, arg InsertNewAccountParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, insertNewAccount,
 		arg.Username,
 		arg.Email,
@@ -32,7 +34,7 @@ func (q *Queries) InsertNewAccount(ctx context.Context, arg InsertNewAccountPara
 		arg.PhonePrefix,
 		arg.PhoneNumber,
 	)
-	var aid int64
+	var aid uuid.UUID
 	err := row.Scan(&aid)
 	return aid, err
 }
@@ -43,7 +45,7 @@ VALUES ($1, $2, $3, $4)
 `
 
 type InsertNewProfileParams struct {
-	Aid        sql.NullInt64
+	Aid        uuid.NullUUID
 	FirstName  string
 	MiddleName sql.NullString
 	Surname    string

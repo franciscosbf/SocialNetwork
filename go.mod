@@ -3,6 +3,7 @@ module github.com/franciscosbf/micro-dwarf
 go 1.19
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/twpayne/go-geom v1.5.0
