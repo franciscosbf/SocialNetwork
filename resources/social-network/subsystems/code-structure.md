@@ -18,6 +18,7 @@ for each <subsystem>/:
 
 ```text
 clis/ - for databases, kafka, redis, rabbitmq, ...
+common/ - contains generic implementations, interfaces...
 subsystems/
   for each <subsystem>/:
     gateway/ - gRPC API used to comunicate outside the subsystem
@@ -25,7 +26,7 @@ subsystems/
       api/ - gRPC API used by other services in the same subsystem or gateway  
       core/ - internal implementation 
       config/ - parameters used to manipulate service behaviour or communications related
-      errors/ - error wrappers
+      errors/ - error codes
       db/ (?) - auto generated code for database
       events/ (?) - publish/subscribe things 
       proto/ (?) - auto generated code for communications via gRPC
