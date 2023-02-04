@@ -25,7 +25,6 @@ subsystems/
     for each <service>/:
       api/ - gRPC API used by other services in the same subsystem or gateway  
       core/ - internal implementation 
-      config/ - parameters used to manipulate service behaviour or communications related
       errors/ - error codes
       storage/ - persistency things
         db/ (?) - auto generated code for database
