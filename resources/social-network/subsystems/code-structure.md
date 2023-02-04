@@ -27,7 +27,9 @@ subsystems/
       core/ - internal implementation 
       config/ - parameters used to manipulate service behaviour or communications related
       errors/ - error codes
-      db/ (?) - auto generated code for database
+      storage/ - persistency things
+        db/ (?) - auto generated code for database
+        |other related components like caching and bridge between db cli and external access|
       events/ (?) - publish/subscribe things 
       proto/ (?) - auto generated code for communications via gRPC
 ```
