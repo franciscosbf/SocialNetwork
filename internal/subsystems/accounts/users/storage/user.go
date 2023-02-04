@@ -78,7 +78,7 @@ type UserInfo struct {
 
 func (uf *UserInfo) String() string {
 	return fmt.Sprintf(
-		"UserRegistration[Username: %v, Email: %v, Password: %v, Phone: %v, Name: %v, Location: %v]",
+		"UserInfo[Username: %v, Email: %v, Password: %v, Phone: %v, Name: %v, Location: %v]",
 		uf.Username, uf.Email, uf.Password, uf.Phone, uf.Name, uf.Location)
 }
 
