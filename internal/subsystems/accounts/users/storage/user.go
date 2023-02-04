@@ -82,8 +82,9 @@ func (uf *UserInfo) String() string {
 		uf.Username, uf.Email, uf.Password, uf.Phone, uf.Name, uf.Location)
 }
 
-// UsersRepository represents all user operations involved.
-// Each one may return an error if something went wrong
+// UsersRepository represents all user operations
+// (get/delete/insert/update) in the database. Each
+// one may return an error if something went wrong
 type UsersRepository interface {
 	// RegisterUser Inserts a new user. UserPhone
 	// and UserName.Middle are optional fields
