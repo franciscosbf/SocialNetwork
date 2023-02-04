@@ -111,3 +111,30 @@ type UsersRepository interface {
 	GetLocation(username string) (*UserLocation, error)
 	SetLocation(username string, location *UserLocation) error
 }
+
+// UsersStore represents all user operations
+// (get/delete/insert/update) in the cache. Each
+// one may return an error if something went wrong
+type UsersStore interface {
+	GetEmail(username string) (string, error)
+	SetEmail(username, email string) error
+
+	GetPhone(username string) (*UserPhone, error)
+	SetPhone(username string, phone *UserPhone) error
+
+	GetName(username string) (*UserName, error)
+	SetName(username string, name *UserName) error
+
+	GetDescription(username string) (string, error)
+	SetDescription(username, description string)
+
+	GetLocation(username string) (*UserLocation, error)
+	SetLocation(username string, location *UserLocation) error
+}
+
+// Users aggregates database
+// and cache interfaces
+type Users struct {
+	store      UsersStore
+	repository UsersRepository
+}
