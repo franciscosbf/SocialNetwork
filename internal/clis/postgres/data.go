@@ -1,7 +1,8 @@
 package postgres
 
-// Connection contains required secure
-// connection and serves as a template
+// Connection contains required connection data 
+// and optional pool configuration. Fields with 
+// zero values and empty strings are ignored 
 type Connection struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
