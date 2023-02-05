@@ -101,17 +101,9 @@ func (uf *UserInfo) String() string {
 // (get/delete/insert/update) in the database. Each
 // one may return an error if something went wrong
 type UsersRepository interface {
-	// RegisterUser Inserts a new user. UserPhone
-	// and UserName.Middle are optional fields
-	RegisterUser(user *UserRegistration) error
-
-	// DeleteUser removes a user from the system
-	DeleteUser(username string) error
-
-	MatchesPassword(username, password string) (bool, error)
-	SetPassword(username, password string) error
-
 	GetUser(username string) *UserInfo
+	SetUser(user *UserRegistration) error
+	DeleteUser(username string) error
 
 	GetEmail(username string) (string, error)
 	SetEmail(username, email string) error
@@ -127,26 +119,38 @@ type UsersRepository interface {
 
 	GetLocation(username string) (*UserLocation, error)
 	SetLocation(username string, location *UserLocation) error
+
+	MatchesPassword(username, password string) (bool, error)
+	SetPassword(username, password string) error
 }
 
 // UsersStore represents all user operations
 // (get/delete/insert/update) in the cache. Each
 // one may return an error if something went wrong
 type UsersStore interface {
+	GetUser(username string) (*UserInfo, error)
+	SetUser(user *UserInfo) error
+	DeleteUser(username string) error
+
 	GetEmail(username string) (string, error)
 	SetEmail(username, email string) error
+	DeleteEmail(username string) error
 
 	GetPhone(username string) (*UserPhone, error)
 	SetPhone(username string, phone *UserPhone) error
+	DeletePhone(username string) error
 
 	GetName(username string) (*UserName, error)
 	SetName(username string, name *UserName) error
+	DeleteName(username string) error
 
 	GetDescription(username string) (string, error)
 	SetDescription(username, description string)
+	DeleteDescription(username string) error
 
 	GetLocation(username string) (*UserLocation, error)
 	SetLocation(username string, location *UserLocation) error
+	DeleteLocation(username string) error
 }
 
 // Users aggregates database
