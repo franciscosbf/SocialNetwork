@@ -19,8 +19,10 @@ for each <subsystem>/:
 ```text
 clis/ - for databases, kafka, redis, rabbitmq, ...
   for each <cli>/:
-    |data.go and client.go and other needed elements|
+    |client.go and other needed elements|
 common/ - contains generic implementations, interfaces...
+envvars/ - config things 
+  providers/ - variable providers 
 subsystems/
   for each <subsystem>/:
     gateway/ - gRPC API used to comunicate outside the subsystem
