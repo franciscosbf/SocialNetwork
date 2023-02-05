@@ -19,7 +19,7 @@ for each <subsystem>/:
 ```text
 clis/ - for databases, kafka, redis, rabbitmq, ...
   for each <cli>/:
-    |client.go and other needed elements|
+    |client.go, vars.go and other needed elements|
 common/ - contains generic implementations, interfaces...
 envvars/ - config things 
   providers/ - variable providers 
