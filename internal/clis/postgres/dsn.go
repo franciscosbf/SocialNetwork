@@ -18,7 +18,13 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/franciscosbf/micro-dwarf/internal/common"
+	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"strings"
+)
+
+const (
+	ErrorCodeInvalidGetVar common.ErrorCode = 0
 )
 
 // DsnConn represents dsn connection values
@@ -27,18 +33,8 @@ type DsnConn struct {
 }
 
 // addString adds a string value to dsn. Empty string is ignored
-func (d *DsnConn) addString(key string, value string) {
+func (d *DsnConn) add(key string, value string) {
 	if value == "" {
-		return
-	}
-
-	pair := fmt.Sprintf("%v=%v", key, value)
-	d.values = append(d.values, pair)
-}
-
-// addInt adds an int value to dsn. Zero value is ignored
-func (d *DsnConn) addInt(key string, value int) {
-	if value == 0 {
 		return
 	}
 
@@ -52,24 +48,18 @@ func (d *DsnConn) unify() string {
 }
 
 // buildDsn returns a valid Postgres connection dsn
-func buildDsn(connData *Connection) string {
+func buildDsn(connData *envvars.Config) (string, error) {
 	raw := &DsnConn{}
 
-	// Connection elements
-	raw.addString("user", connData.User)
-	raw.addString("password", connData.Password)
-	raw.addString("host", connData.Host)
-	raw.addInt("port", connData.Port)
-	raw.addString("dbname", connData.Dbname)
-	raw.addString("sslmode", connData.SslMode)
+	for _, pair := range confVars {
+		value, err := connData.Get(pair.varName)
+		if err != nil {
+			return "", common.WrapErrorf(
+				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
+		}
 
-	// Optional config parameters
-	raw.addInt("pool_max_conns", connData.MaxConnections)
-	raw.addInt("pool_min_conns", connData.MinConnections)
-	raw.addString("pool_max_conn_lifetime", connData.MaxConnLifetime)
-	raw.addString("pool_max_conn_idle_time", connData.MaxConnIdleTime)
-	raw.addString("pool_health_check_period", connData.HeathCheckPeriod)
-	raw.addString("pool_max_conn_lifetime_jitter", connData.MaxConnLifeJitter)
+		raw.add(pair.dsnName, value)
+	}
 
-	return raw.unify()
+	return raw.unify(), nil
 }
