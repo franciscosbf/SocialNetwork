@@ -83,7 +83,6 @@ func (ul *UserLocation) String() string {
 type UserInfo struct {
 	Username string
 	Email    string
-	Password string
 
 	Phone *UserPhone
 
@@ -94,8 +93,8 @@ type UserInfo struct {
 
 func (uf *UserInfo) String() string {
 	return fmt.Sprintf(
-		"UserInfo[Username: %v, Email: %v, Password: %v, Phone: %v, Name: %v, Location: %v]",
-		uf.Username, uf.Email, uf.Password, uf.Phone, uf.Name, uf.Location)
+		"UserInfo[Username: %v, Email: %v, Phone: %v, Name: %v, Location: %v]",
+		uf.Username, uf.Email, uf.Phone, uf.Name, uf.Location)
 }
 
 // UsersRepository represents all user operations
