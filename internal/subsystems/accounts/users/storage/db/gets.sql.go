@@ -29,8 +29,38 @@ import (
 	"github.com/twpayne/go-geom"
 )
 
-const getAccountInternals = `-- name: GetAccountInternals :one
+const getAccount = `-- name: GetAccount :one
 
+SELECT
+    aid,
+    email,
+    phone_prefix,
+    phone_number
+FROM users_info.accounts
+WHERE username = $1
+`
+
+type GetAccountRow struct {
+	Aid         uuid.UUID
+	Email       string
+	PhonePrefix sql.NullInt32
+	PhoneNumber sql.NullInt32
+}
+
+// Accounts related queries.
+func (q *Queries) GetAccount(ctx context.Context, username string) (GetAccountRow, error) {
+	row := q.db.QueryRow(ctx, getAccount, username)
+	var i GetAccountRow
+	err := row.Scan(
+		&i.Aid,
+		&i.Email,
+		&i.PhonePrefix,
+		&i.PhoneNumber,
+	)
+	return i, err
+}
+
+const getAccountInternals = `-- name: GetAccountInternals :one
 SELECT aid, email
 FROM users_info.accounts
 WHERE username = $1
@@ -41,7 +71,6 @@ type GetAccountInternalsRow struct {
 	Email string
 }
 
-// Accounts related queries.
 func (q *Queries) GetAccountInternals(ctx context.Context, username string) (GetAccountInternalsRow, error) {
 	row := q.db.QueryRow(ctx, getAccountInternals, username)
 	var i GetAccountInternalsRow
@@ -91,6 +120,43 @@ func (q *Queries) GetAccountPhone(ctx context.Context, aid uuid.UUID) (GetAccoun
 	return i, err
 }
 
+const getProfile = `-- name: GetProfile :one
+
+SELECT
+    aid,
+    description,
+    first_name,
+    middle_name,
+    surname,
+    location
+FROM users_info.profiles
+WHERE aid = $1
+`
+
+type GetProfileRow struct {
+	Aid         uuid.NullUUID
+	Description sql.NullString
+	FirstName   string
+	MiddleName  sql.NullString
+	Surname     string
+	Location    geom.MultiPolygon
+}
+
+// Profiles related queries.
+func (q *Queries) GetProfile(ctx context.Context, aid uuid.NullUUID) (GetProfileRow, error) {
+	row := q.db.QueryRow(ctx, getProfile, aid)
+	var i GetProfileRow
+	err := row.Scan(
+		&i.Aid,
+		&i.Description,
+		&i.FirstName,
+		&i.MiddleName,
+		&i.Surname,
+		&i.Location,
+	)
+	return i, err
+}
+
 const getProfileDescription = `-- name: GetProfileDescription :one
 SELECT description
 FROM users_info.profiles
@@ -118,7 +184,6 @@ func (q *Queries) GetProfileLocation(ctx context.Context, aid uuid.NullUUID) (ge
 }
 
 const getProfileName = `-- name: GetProfileName :one
-
 SELECT first_name, middle_name, surname
 FROM users_info.profiles
 WHERE aid = $1
@@ -130,7 +195,6 @@ type GetProfileNameRow struct {
 	Surname    string
 }
 
-// Profiles related queries.
 func (q *Queries) GetProfileName(ctx context.Context, aid uuid.NullUUID) (GetProfileNameRow, error) {
 	row := q.db.QueryRow(ctx, getProfileName, aid)
 	var i GetProfileNameRow
