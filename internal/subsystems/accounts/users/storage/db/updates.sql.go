@@ -98,13 +98,13 @@ func (q *Queries) UpdateProfileFirstName(ctx context.Context, arg UpdateProfileF
 
 const updateProfileLocation = `-- name: UpdateProfileLocation :exec
 UPDATE users_info.profiles
-SET location = ST_Point($1, $2)::geography
+SET location = ST_Point($1::float, $2::float)::geography
 WHERE aid = $3
 `
 
 type UpdateProfileLocationParams struct {
-	Latitude  interface{}
-	Longitude interface{}
+	Latitude  float64
+	Longitude float64
 	Aid       uuid.NullUUID
 }
 

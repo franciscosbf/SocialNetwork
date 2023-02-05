@@ -34,5 +34,5 @@ WHERE aid = @aid;
 
 -- name: UpdateProfileLocation :exec
 UPDATE users_info.profiles
-SET location = ST_Point(@latitude, @longitude)::geography
+SET location = ST_Point(@latitude::float, @longitude::float)::geography
 WHERE aid = @aid;
