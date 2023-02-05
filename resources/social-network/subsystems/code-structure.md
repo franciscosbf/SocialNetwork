@@ -18,6 +18,8 @@ for each <subsystem>/:
 
 ```text
 clis/ - for databases, kafka, redis, rabbitmq, ...
+  for each <cli>/:
+    |data.go and client.go and other needed elements|
 common/ - contains generic implementations, interfaces...
 subsystems/
   for each <subsystem>/:
