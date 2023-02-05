@@ -10,7 +10,7 @@ type DsnConn struct {
 	values []string
 }
 
-// addString adds a string value to dsn
+// addString adds a string value to dsn. Empty string is ignored
 func (d *DsnConn) addString(key string, value string) {
 	if value == "" {
 		return
@@ -20,7 +20,7 @@ func (d *DsnConn) addString(key string, value string) {
 	d.values = append(d.values, pair)
 }
 
-// addInt adds an int value to dsn
+// addInt adds an int value to dsn. Zero value is ignored
 func (d *DsnConn) addInt(key string, value int) {
 	if value == 0 {
 		return
