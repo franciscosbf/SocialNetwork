@@ -15,7 +15,7 @@ const (
 
 // NewPostgresCli creates a new pool and checks db connection.
 func NewPostgresCli(connData *Connection) (*pgxpool.Pool, error) {
-	dsn := BuildDsn(connData)
+	dsn := buildDsn(connData)
 
 	conf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {

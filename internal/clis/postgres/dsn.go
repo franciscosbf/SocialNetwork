@@ -35,8 +35,8 @@ func (d *DsnConn) unify() string {
 	return strings.Join(d.values, " ")
 }
 
-// BuildDsn returns a valid Postgres connection dsn
-func BuildDsn(connData *Connection) string {
+// buildDsn returns a valid Postgres connection dsn
+func buildDsn(connData *Connection) string {
 	raw := &DsnConn{}
 
 	// Connection elements
