@@ -1,6 +1,7 @@
 package postgres
 
 // confVars contains pairs of
+// dsn key pair and var name
 var confVars = []*struct {
 	dsnName string
 	varName string
