@@ -108,13 +108,13 @@ type UsersRepository interface {
 	// DeleteUser removes a user from the system
 	DeleteUser(username string) error
 
+	MatchesPassword(username, password string) (bool, error)
+	SetPassword(username, password string) error
+
 	GetUser(username string) *UserInfo
 
 	GetEmail(username string) (string, error)
 	SetEmail(username, email string) error
-
-	MatchesPassword(username, password string) (bool, error)
-	SetPassword(username, password string) error
 
 	GetPhone(username string) (*UserPhone, error)
 	SetPhone(username string, phone *UserPhone) error
