@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	ErrorCodeInvalidGetVar errorw.Code = 0
+	ErrorCodeInvalidGetVar errorw.ErrorCode = 0
 )
 
 // DsnConn represents dsn connection values

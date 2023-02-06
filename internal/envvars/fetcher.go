@@ -2,7 +2,7 @@ package envvars
 
 import "github.com/franciscosbf/micro-dwarf/internal/errorw"
 
-const ErrorCodeVarFetch errorw.Code = 0
+const ErrorCodeVarFetch errorw.ErrorCode = 0
 
 // Provider represents the connector
 // that fetches variables. If key doesn't

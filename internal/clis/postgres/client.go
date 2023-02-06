@@ -26,7 +26,7 @@ import (
 
 // Error codes
 const (
-	ErrorCodeDsnFail errorw.Code = iota
+	ErrorCodeDsnFail errorw.ErrorCode = iota
 	ErrorCodeConfigFail
 	ErrorCodeConnFail
 	ErrorCodeQueryCheckFail

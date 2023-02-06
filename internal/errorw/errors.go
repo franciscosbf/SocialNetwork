@@ -21,15 +21,15 @@ import "fmt"
 // Wrapper contains an error with a nice message along
 // with a code which give some meaning about its nature
 type Wrapper struct {
-	code   Code
+	code   ErrorCode
 	origin error
 	msg    string
 }
 
-// Code represents the error nature. Error codes
+// ErrorCode represents the error nature. Error codes
 // are implementation specific, giving the freedom to
 // shape them according to their environment
-type Code uint
+type ErrorCode uint
 
 // Error returns the given message passed to WrapErrorf
 // if origin is nil, otherwise returns a formatted string
@@ -48,15 +48,15 @@ func (e *Wrapper) Unwrap() error {
 	return e.origin
 }
 
-// Code returns the error code
-func (e *Wrapper) Code() Code {
+// ErrorCode returns the error code
+func (e *Wrapper) Code() ErrorCode {
 	return e.code
 }
 
 // WrapErrorf wraps around and returns an error with a given status
 // code and a msg to be formatted with optional parameters. There isn't
 // any verification about the nullability of each parameter
-func WrapErrorf(code Code, origin error, format string, fmtArgs ...any) error {
+func WrapErrorf(code ErrorCode, origin error, format string, fmtArgs ...any) error {
 	msg := fmt.Sprintf(format, fmtArgs)
 
 	return &Wrapper{

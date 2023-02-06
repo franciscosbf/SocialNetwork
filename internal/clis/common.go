@@ -4,4 +4,4 @@ import (
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 )
 
-const ErrorCodeMissingConfig errorw.Code = 0
+const ErrorCodeMissingConfig errorw.ErrorCode = 0
