@@ -41,7 +41,7 @@ func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
 	conf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeConfigFail, err, "Invalid Postgres envvars")
+			ErrorCodeConfigFail, err, "Invalid Postgres config")
 	}
 
 	pool, err := pgxpool.ConnectConfig(context.Background(), conf)
