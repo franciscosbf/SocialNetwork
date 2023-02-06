@@ -26,6 +26,7 @@ func TestWithoutErrorWithVariableUnset(t *testing.T) {
 
 func TestVariableSet(t *testing.T) {
 	t.Setenv("TEST_3", "hi")
+	defer func() { _ = os.Unsetenv("TEST_3") }()
 
 	envVars := NewEnvVariables()
 
