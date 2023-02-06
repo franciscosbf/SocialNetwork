@@ -47,9 +47,14 @@ func (d *DsnConn) unify() string {
 	return strings.Join(d.values, " ")
 }
 
+// newDsnBuilder returns a new dsn constructor
+func newDsnBuilder() *DsnConn {
+	return &DsnConn{}
+}
+
 // buildDsn returns a valid Postgres connection dsn
 func buildDsn(connData *envvars.Config) (string, error) {
-	raw := &DsnConn{}
+	raw := newDsnBuilder()
 
 	for _, pair := range confVars {
 		value, err := connData.Get(pair.varName)
