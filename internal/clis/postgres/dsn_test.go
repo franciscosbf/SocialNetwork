@@ -44,6 +44,7 @@ func TestEmptyDsn(t *testing.T) {
 
 func TestDsnWithSomePairs(t *testing.T) {
 	setVars("a", 1, 2, 3)
+	defer unsetVars(1, 2, 3)
 
 	envVars := providers.NewEnvVariables()
 	conf := envvars.NewConfig(envVars)
@@ -56,12 +57,12 @@ func TestDsnWithSomePairs(t *testing.T) {
 		t.Errorf("Expecting dsn: %v. Got: %v", expectedDsn, dsn)
 	}
 
-	unsetVars(1, 2, 3)
 }
 
 func TestDsnWithEmptyVar(t *testing.T) {
 	setVars("b", 6, 7, 8)
 	setVars("", 9)
+	defer unsetVars(6, 7, 8, 9)
 
 	envVars := providers.NewEnvVariables()
 	conf := envvars.NewConfig(envVars)
@@ -73,6 +74,4 @@ func TestDsnWithEmptyVar(t *testing.T) {
 	} else if dsn != expectedDsn {
 		t.Errorf("Expecting dsn: %v. Got: %v", expectedDsn, dsn)
 	}
-
-	unsetVars(6, 7, 8, 9)
 }
