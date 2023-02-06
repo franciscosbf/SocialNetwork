@@ -1,8 +1,8 @@
 package envvars
 
-import "github.com/franciscosbf/micro-dwarf/internal/common"
+import "github.com/franciscosbf/micro-dwarf/internal/errorw"
 
-const ErrorCodeVarFetch common.ErrorCode = 0
+const ErrorCodeVarFetch errorw.Code = 0
 
 // Provider represents the connector
 // that fetches variables. If key doesn't
@@ -27,7 +27,7 @@ func NewConfig(provider Provider) *Config {
 func (c *Config) Get(key string) (string, error) {
 	value, err := c.provider.Get(key)
 	if err != nil {
-		return "", common.WrapErrorf(ErrorCodeVarFetch, err, "Couldn't get variable %v", key)
+		return "", errorw.WrapErrorf(ErrorCodeVarFetch, err, "Couldn't get variable %v", key)
 	}
 
 	return value, nil

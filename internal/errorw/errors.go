@@ -14,27 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package errorw
 
 import "fmt"
 
-// ErrorWrap contains an error with a nice message along
+// Wrapper contains an error with a nice message along
 // with a code which give some meaning about its nature
-type ErrorWrap struct {
-	code   ErrorCode
+type Wrapper struct {
+	code   Code
 	origin error
 	msg    string
 }
 
-// ErrorCode represents the error nature. Error codes
+// Code represents the error nature. Error codes
 // are implementation specific, giving the freedom to
 // shape them according to their environment
-type ErrorCode uint
+type Code uint
 
 // Error returns the given message passed to WrapErrorf
 // if origin is nil, otherwise returns a formatted string
 // containing both
-func (e *ErrorWrap) Error() string {
+func (e *Wrapper) Error() string {
 	if e.origin != nil {
 		return fmt.Sprintf("%v: %v", e.msg, e.origin)
 	}
@@ -44,22 +44,22 @@ func (e *ErrorWrap) Error() string {
 
 // Unwrap returns the origin error. It can be nil,
 // depending on what was given to WrapErrorf
-func (e *ErrorWrap) Unwrap() error {
+func (e *Wrapper) Unwrap() error {
 	return e.origin
 }
 
 // Code returns the error code
-func (e *ErrorWrap) Code() ErrorCode {
+func (e *Wrapper) Code() Code {
 	return e.code
 }
 
 // WrapErrorf wraps around and returns an error with a given status
 // code and a msg to be formatted with optional parameters. There isn't
 // any verification about the nullability of each parameter
-func WrapErrorf(code ErrorCode, origin error, format string, fmtArgs ...any) error {
+func WrapErrorf(code Code, origin error, format string, fmtArgs ...any) error {
 	msg := fmt.Sprintf(format, fmtArgs)
 
-	return &ErrorWrap{
+	return &Wrapper{
 		code:   code,
 		origin: origin,
 		msg:    msg,

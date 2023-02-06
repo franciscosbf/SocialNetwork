@@ -18,14 +18,14 @@ package postgres
 
 import (
 	"context"
-	"github.com/franciscosbf/micro-dwarf/internal/common"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
+	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 // Error codes
 const (
-	ErrorCodeDsnFail common.ErrorCode = iota
+	ErrorCodeDsnFail errorw.Code = iota
 	ErrorCodeConfigFail
 	ErrorCodeConnBuild
 	ErrorCodeConnTry
@@ -35,24 +35,24 @@ const (
 func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
 	dsn, err := buildDsn(connData)
 	if err != nil {
-		return nil, common.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsn")
+		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsn")
 	}
 
 	conf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, common.WrapErrorf(
+		return nil, errorw.WrapErrorf(
 			ErrorCodeConfigFail, err, "Invalid Postgres envvars")
 	}
 
 	pool, err := pgxpool.ConnectConfig(context.Background(), conf)
 	if err != nil {
-		return nil, common.WrapErrorf(
+		return nil, errorw.WrapErrorf(
 			ErrorCodeConnBuild, err, "Couldn't create Postgres pool")
 	}
 
 	// Checks if connection is ok
 	if err := pool.Ping(context.Background()); err != nil {
-		return nil, common.WrapErrorf(
+		return nil, errorw.WrapErrorf(
 			ErrorCodeConnTry, err, "Couldn't connect to Postgres")
 	}
 

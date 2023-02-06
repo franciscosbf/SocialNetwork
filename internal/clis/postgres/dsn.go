@@ -18,13 +18,13 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/franciscosbf/micro-dwarf/internal/common"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
+	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"strings"
 )
 
 const (
-	ErrorCodeInvalidGetVar common.ErrorCode = 0
+	ErrorCodeInvalidGetVar errorw.Code = 0
 )
 
 // DsnConn represents dsn connection values
@@ -54,7 +54,7 @@ func buildDsn(connData *envvars.Config) (string, error) {
 	for _, pair := range confVars {
 		value, err := connData.Get(pair.varName)
 		if err != nil {
-			return "", common.WrapErrorf(
+			return "", errorw.WrapErrorf(
 				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
 		}
 
