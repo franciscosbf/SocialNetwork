@@ -29,15 +29,19 @@ func TestVariableSet(t *testing.T) {
 
 	envVars := NewEnvVariables()
 
-	if value, _ := envVars.Get("TEST_3"); value != "hi" {
+	if value, err := envVars.Get("TEST_3"); value != "hi" {
 		t.Error("Expecting var TEST_3 containing value hi")
+	} else if err != nil {
+		t.Error("Expecting err to be nil")
 	}
 }
 
 func TestVariableUnset(t *testing.T) {
 	envVars := NewEnvVariables()
 
-	if value, _ := envVars.Get("TEST_4"); value != "" {
+	if value, err := envVars.Get("TEST_4"); value != "" {
 		t.Error("Expecting returning empty string when a variable doesn't exist")
+	} else if err != nil {
+		t.Error("Expecting err to be nil")
 	}
 }
