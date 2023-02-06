@@ -18,6 +18,7 @@ package postgres
 
 import (
 	"context"
+	"github.com/franciscosbf/micro-dwarf/internal/clis"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -33,6 +34,11 @@ const (
 
 // NewPostgresCli creates a new pool and checks db connection.
 func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
+	if connData == nil {
+		return nil, errorw.WrapErrorf(
+			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
+	}
+
 	dsn, err := buildDsn(connData)
 	if err != nil {
 		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsn")
