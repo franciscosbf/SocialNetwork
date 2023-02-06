@@ -27,8 +27,8 @@ import (
 const (
 	ErrorCodeDsnFail errorw.Code = iota
 	ErrorCodeConfigFail
-	ErrorCodeConnBuild
-	ErrorCodeConnTry
+	ErrorCodeConnFail
+	ErrorCodeQueryCheckFail
 )
 
 // NewPostgresCli creates a new pool and checks db connection.
@@ -47,13 +47,13 @@ func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.ConnectConfig(context.Background(), conf)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeConnBuild, err, "Couldn't create Postgres pool")
+			ErrorCodeConnFail, err, "Couldn't create Postgres pool")
 	}
 
 	// Checks if connection is ok
 	if err := pool.Ping(context.Background()); err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeConnTry, err, "Couldn't connect to Postgres")
+			ErrorCodeQueryCheckFail, err, "Couldn't perform a connection query check in Postgres database")
 	}
 
 	return pool, err
