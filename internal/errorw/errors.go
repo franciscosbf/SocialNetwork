@@ -31,6 +31,10 @@ type Wrapper struct {
 // shape them according to their environment
 type ErrorCode uint
 
+func (e *Wrapper) String() string {
+	return fmt.Sprintf("Wrapper[code: %v, origin: %v, msg: %v]", e.code, e.origin, e.msg)
+}
+
 // Error returns the given message passed to WrapErrorf
 // if origin is nil, otherwise returns a formatted string
 // containing both
