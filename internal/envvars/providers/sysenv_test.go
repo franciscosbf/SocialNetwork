@@ -25,15 +25,13 @@ func TestWithoutErrorWithVariableUnset(t *testing.T) {
 }
 
 func TestVariableSet(t *testing.T) {
-	_ = os.Setenv("TEST_3", "hi")
+	t.Setenv("TEST_3", "hi")
 
 	envVars := NewEnvVariables()
 
 	if value, _ := envVars.Get("TEST_3"); value != "hi" {
 		t.Error("Expecting var TEST_3 containing value hi")
 	}
-
-	defer func() { _ = os.Unsetenv("TEST_3") }()
 }
 
 func TestVariableUnset(t *testing.T) {
