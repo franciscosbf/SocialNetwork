@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package postgres
+package dsn
 
 import (
 	"fmt"
+	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/dsn/vars"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"strings"
@@ -45,33 +46,37 @@ func (d *DsnConn) unify() string {
 	return strings.Join(d.values, " ")
 }
 
-// newDsnBuilder returns a new dsn constructor
-func newDsnBuilder() *DsnConn {
+// newBuilder returns a new dsn constructor
+func newBuilder() *DsnConn {
 	return &DsnConn{}
 }
 
-// buildDsn returns a valid Postgres connection dsn
-func buildDsn(connData *envvars.Config) (string, error) {
-	raw := newDsnBuilder()
+// Build returns a valid Postgres connection dsn
+func Build(connData *envvars.Config) (string, error) {
+	raw := newBuilder()
 
-	for _, pair := range confVars {
-		name := pair.varName
+	err := vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
+		name := info.VarName
 		value, err := connData.Get(name)
 		if err != nil {
-			return "", errorw.WrapErrorf(
+			return errorw.WrapErrorf(
 				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
 		}
 
 		if value == "" {
-			if pair.required {
-				return "", errorw.WrapErrorf(
+			if info.Required {
+				return errorw.WrapErrorf(
 					ErrorCodeMissingVar, nil, "Missing required variable %v", name)
-			} else {
-				continue // Skip empty variable
 			}
+		} else {
+			raw.add(info.DsnName, value)
 		}
 
-		raw.add(pair.dsnName, value)
+		return nil
+	})
+
+	if err != nil {
+		return "", err
 	}
 
 	return raw.unify(), nil

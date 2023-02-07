@@ -19,6 +19,7 @@ package postgres
 import (
 	"context"
 	"github.com/franciscosbf/micro-dwarf/internal/clis"
+	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/dsn"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -39,12 +40,12 @@ func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
 			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
 	}
 
-	dsn, err := buildDsn(connData)
+	dsnConn, err := dsn.Build(connData)
 	if err != nil {
-		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsn")
+		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsnConn")
 	}
 
-	conf, err := pgxpool.ParseConfig(dsn)
+	conf, err := pgxpool.ParseConfig(dsnConn)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
 			ErrorCodeConfigFail, err, "Invalid Postgres config")
