@@ -23,8 +23,10 @@ import (
 	"strings"
 )
 
+// Error codes
 const (
-	ErrorCodeInvalidGetVar errorw.ErrorCode = 0
+	ErrorCodeInvalidGetVar errorw.ErrorCode = iota
+	ErrorCodeMissingVar
 )
 
 // DsnConn represents dsn connection values
@@ -32,12 +34,8 @@ type DsnConn struct {
 	values []string
 }
 
-// addString adds a string value to dsn. Empty string is ignored
+// addString adds a string value to dsn.
 func (d *DsnConn) add(key string, value string) {
-	if value == "" {
-		return
-	}
-
 	pair := fmt.Sprintf("%v=%v", key, value)
 	d.values = append(d.values, pair)
 }
@@ -57,10 +55,20 @@ func buildDsn(connData *envvars.Config) (string, error) {
 	raw := newDsnBuilder()
 
 	for _, pair := range confVars {
-		value, err := connData.Get(pair.varName)
+		name := pair.varName
+		value, err := connData.Get(name)
 		if err != nil {
 			return "", errorw.WrapErrorf(
 				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
+		}
+
+		if value == "" {
+			if pair.required {
+				return "", errorw.WrapErrorf(
+					ErrorCodeMissingVar, nil, "Missing required variable %v", name)
+			} else {
+				continue // Skip empty variable
+			}
 		}
 
 		raw.add(pair.dsnName, value)
