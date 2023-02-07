@@ -30,6 +30,15 @@ func optionalVar(dsnName, varName string) {
 	registerVar(dsnName, varName, false)
 }
 
+// infoCopy returns a contents copy of a given var
+func infoCopy(from *PostgresVarInfo) *PostgresVarInfo {
+	return &PostgresVarInfo{
+		DsnName:  from.DsnName,
+		VarName:  from.VarName,
+		Required: from.Required,
+	}
+}
+
 // init registers all variables
 func init() {
 	// Connection elements
@@ -47,15 +56,6 @@ func init() {
 	optionalVar("pool_max_conn_idle_time", "POSTGRES_POOL_MAX_CONN_IDLE_TIME")
 	optionalVar("pool_health_check_period", "POSTGRES_POOL_HEALTH_CHECK_PERIOD")
 	optionalVar("pool_max_conn_lifetime_jitter", "POSTGRES_POOL_MAX_CONN_LIFETIME_JITTER")
-}
-
-// infoCopy returns a contents copy of a given var
-func infoCopy(from *PostgresVarInfo) *PostgresVarInfo {
-	return &PostgresVarInfo{
-		DsnName:  from.DsnName,
-		VarName:  from.VarName,
-		Required: from.Required,
-	}
 }
 
 // ForEachPostgresVar Iterates over all vars with a reader func. If reader
