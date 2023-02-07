@@ -799,7 +799,7 @@
 											"top": 931,
 											"width": 111,
 											"height": 14,
-											"text": "Redis Cluster"
+											"text": "Redis"
 										},
 										{
 											"_type": "LabelView",
@@ -5189,7 +5189,7 @@
 											"top": 945,
 											"width": 111,
 											"height": 14,
-											"text": "Kafka Cluster"
+											"text": "Kafka"
 										},
 										{
 											"_type": "LabelView",
@@ -7965,7 +7965,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Redis Cluster",
+					"name": "Redis",
 					"attributes": [
 						{
 							"_type": "UMLPort",
@@ -8255,7 +8255,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Kafka Cluster",
+					"name": "Kafka",
 					"attributes": [
 						{
 							"_type": "UMLPort",
