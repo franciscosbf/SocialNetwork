@@ -1,9 +1,7 @@
 package utils
 
-type Bucket = map[any]struct{}
-
 type Set[V comparable] struct {
-	m Bucket
+	m map[V]struct{}
 }
 
 // PutValue Inserts a given value
@@ -18,9 +16,22 @@ func (s *Set[V]) ContainsValue(value V) bool {
 	return ok
 }
 
+// Values returns all values
+func (s *Set[V]) Values() []V {
+	values := make([]V, len(s.m))
+
+	c := 0
+	for v := range s.m {
+		values[c] = v
+		c++
+	}
+
+	return values
+}
+
 // NewSet returns a new set
 func NewSet[V comparable]() *Set[V] {
-	bucket := make(Bucket)
+	bucket := make(map[V]struct{})
 
 	return &Set[V]{m: bucket}
 }

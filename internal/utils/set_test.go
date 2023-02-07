@@ -18,4 +18,23 @@ func TestSetContains(t *testing.T) {
 			t.Errorf("Missing value '%v' in set", v)
 		}
 	}
+
+}
+
+func TestSetValues(t *testing.T) {
+	s := NewSet[string]()
+
+	values := map[string]struct{}{
+		"a": {}, "b": {}, "c": {}, "": {}, " ": {},
+	}
+
+	for v := range values {
+		s.PutValue(v)
+	}
+
+	for _, v := range s.Values() {
+		if _, ok := values[v]; !ok {
+			t.Errorf("Missing value '%v' in set", v)
+		}
+	}
 }
