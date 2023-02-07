@@ -1,0 +1,26 @@
+global:
+  storageClass: "standard" # minikube default Storage Class
+
+architecture: "replication"
+
+auth:
+  password: "password"
+
+master:
+  persistence:
+    size: 1Gi
+
+replica:
+  replicaCount: 2
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 10
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 10
+  persistence:
+    size: 1Gi
