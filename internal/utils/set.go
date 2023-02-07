@@ -2,7 +2,7 @@ package utils
 
 type Bucket = map[any]struct{}
 
-type Set[V any] struct {
+type Set[V comparable] struct {
 	m Bucket
 }
 
@@ -19,7 +19,7 @@ func (s *Set[V]) ContainsValue(value V) bool {
 }
 
 // NewSet returns a new set
-func NewSet[V any]() *Set[V] {
+func NewSet[V comparable]() *Set[V] {
 	bucket := make(Bucket)
 
 	return &Set[V]{m: bucket}
