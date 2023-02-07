@@ -4,13 +4,13 @@ type Set[V comparable] struct {
 	m map[V]struct{}
 }
 
-// PutValue Inserts a given value
-func (s *Set[V]) PutValue(value V) {
+// Put Inserts a given value
+func (s *Set[V]) Put(value V) {
 	s.m[value] = struct{}{}
 }
 
-// ContainsValue returns true if contains a given value
-func (s *Set[V]) ContainsValue(value V) bool {
+// Contains returns true if contains a given value
+func (s *Set[V]) Contains(value V) bool {
 	_, ok := s.m[value]
 
 	return ok
@@ -27,6 +27,18 @@ func (s *Set[V]) Values() []V {
 	}
 
 	return values
+}
+
+// Copy returns a new set with the same values.
+// Warning: it doesn't do deep copy of values
+func (s *Set[V]) Copy() (newS *Set[V]) {
+	newS = NewSet[V]()
+
+	for v := range s.m {
+		newS.Put(v)
+	}
+
+	return
 }
 
 // NewSet returns a new set
