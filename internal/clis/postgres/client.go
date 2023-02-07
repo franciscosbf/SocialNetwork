@@ -34,13 +34,13 @@ const (
 )
 
 // NewPostgresCli creates a new pool and checks db connection.
-func NewPostgresCli(connData *envvars.Config) (*pgxpool.Pool, error) {
-	if connData == nil {
+func NewPostgresCli(confReader *envvars.Config) (*pgxpool.Pool, error) {
+	if confReader == nil {
 		return nil, errorw.WrapErrorf(
 			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
 	}
 
-	dsnConn, err := dsn.Build(connData)
+	dsnConn, err := dsn.Build(confReader)
 	if err != nil {
 		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsnConn")
 	}

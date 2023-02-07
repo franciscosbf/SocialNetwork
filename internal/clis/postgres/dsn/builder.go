@@ -52,12 +52,12 @@ func newBuilder() *DsnConn {
 }
 
 // Build returns a valid Postgres connection dsn
-func Build(connData *envvars.Config) (string, error) {
+func Build(confReader *envvars.Config) (string, error) {
 	raw := newBuilder()
 
 	err := vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
 		name := info.VarName
-		value, err := connData.Get(name)
+		value, err := confReader.Get(name)
 		if err != nil {
 			return errorw.WrapErrorf(
 				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
