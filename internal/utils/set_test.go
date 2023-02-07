@@ -10,11 +10,11 @@ func TestSetContains(t *testing.T) {
 	}
 
 	for _, v := range values {
-		s.PutValue(v)
+		s.Put(v)
 	}
 
 	for _, v := range values {
-		if !s.ContainsValue(v) {
+		if !s.Contains(v) {
 			t.Errorf("Missing value '%v' in set", v)
 		}
 	}
@@ -29,11 +29,35 @@ func TestSetValues(t *testing.T) {
 	}
 
 	for v := range values {
-		s.PutValue(v)
+		s.Put(v)
 	}
 
 	for _, v := range s.Values() {
 		if _, ok := values[v]; !ok {
+			t.Errorf("Missing value '%v' in set", v)
+		}
+	}
+}
+
+func TestSetCopy(t *testing.T) {
+	type dummy struct {
+		i int
+	}
+
+	s := NewSet[*dummy]()
+
+	values := []*dummy{
+		{i: 1}, {i: 2}, {i: 3}, {i: 4}, {i: 5},
+	}
+
+	for _, v := range values {
+		s.Put(v)
+	}
+
+	newS := s.Copy()
+
+	for _, v := range s.Values() {
+		if !newS.Contains(v) {
 			t.Errorf("Missing value '%v' in set", v)
 		}
 	}
