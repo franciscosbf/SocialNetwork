@@ -1,26 +1,26 @@
 package utils
 
-type BucketValues = map[any]struct{}
+type Bucket = map[any]struct{}
 
 type Set[V any] struct {
-	bucket BucketValues
+	m Bucket
 }
 
 // PutValue Inserts a given value
 func (s *Set[V]) PutValue(value V) {
-	s.bucket[value] = struct{}{}
+	s.m[value] = struct{}{}
 }
 
 // ContainsValue returns true if contains a given value
 func (s *Set[V]) ContainsValue(value V) bool {
-	_, ok := s.bucket[value]
+	_, ok := s.m[value]
 
 	return ok
 }
 
 // NewSet returns a new set
 func NewSet[V any]() *Set[V] {
-	bucket := make(BucketValues)
+	bucket := make(Bucket)
 
-	return &Set[V]{bucket: bucket}
+	return &Set[V]{m: bucket}
 }
