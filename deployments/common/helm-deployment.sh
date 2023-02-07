@@ -38,7 +38,8 @@ check_variables \
 
 check_commands \
   helm \
-  jq
+  jq \
+  kubectl
 
 # Checks if the repo was already added. If not, adds it
 HAS_REPO=$(helm repo list -o json | jq ".[].name==\"$REPO_NAME\"")
