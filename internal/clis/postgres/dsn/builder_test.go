@@ -27,7 +27,7 @@ import (
 
 func setVars() {
 	_ = vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
-		_ = os.Setenv(info.VarName, "a")
+		_ = os.Setenv(info.Name(), "a")
 
 		return nil
 	})
@@ -35,7 +35,7 @@ func setVars() {
 
 func unsetVars() {
 	_ = vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
-		_ = os.Unsetenv(info.VarName)
+		_ = os.Unsetenv(info.Name())
 
 		return nil
 	})
@@ -63,8 +63,8 @@ func validateDsn(t *testing.T, cond func(info *vars.PostgresVarInfo) bool) {
 	}
 
 	_ = vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
-		if _, ok := keys[info.DsnName]; !ok && cond(info) {
-			t.Errorf("Missing dsn %v which var name is %v", info.DsnName, info.VarName)
+		if _, ok := keys[info.Dsn()]; !ok && cond(info) {
+			t.Errorf("Missing dsn %v which var name is %v", info.Dsn(), info.Name())
 		}
 
 		return nil
@@ -82,12 +82,12 @@ func TestVars(t *testing.T) {
 		},
 		"TestWithRequiredVariables": func(t *testing.T) {
 			validateDsn(t, func(info *vars.PostgresVarInfo) bool {
-				return info.Required
+				return info.Required()
 			})
 		},
 		"TestWithOptionalVariables": func(t *testing.T) {
 			validateDsn(t, func(info *vars.PostgresVarInfo) bool {
-				return !info.Required
+				return !info.Required()
 			})
 		},
 	}

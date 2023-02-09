@@ -51,7 +51,7 @@ func Build(confReader *envvars.Config) (string, error) {
 	raw := newBuilder()
 
 	err := vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
-		name := info.VarName
+		name := info.Name()
 		value, err := confReader.Get(name)
 		if err != nil {
 			return errorw.WrapErrorf(
@@ -59,12 +59,12 @@ func Build(confReader *envvars.Config) (string, error) {
 		}
 
 		if value == "" {
-			if info.Required {
+			if info.Required() {
 				return errorw.WrapErrorf(
 					clis.ErrorCodeMissingVar, nil, "Missing Postgres required variable %v", name)
 			}
 		} else {
-			raw.add(info.DsnName, value)
+			raw.add(info.Dsn(), value)
 		}
 
 		return nil

@@ -28,3 +28,10 @@ const (
 	ErrorCodeUnacceptedVal
 	ErrorCodeInvalidVarType
 )
+
+// VarInfo represents the base getters
+// that each variable info must have
+type VarInfo interface {
+	Name() string
+	Required() bool
+}

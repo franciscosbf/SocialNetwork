@@ -26,7 +26,7 @@ import (
 
 func unsetVars() {
 	_ = vars.ForEachPostgresVar(func(info *vars.PostgresVarInfo) error {
-		_ = os.Unsetenv(info.VarName)
+		_ = os.Unsetenv(info.Name())
 
 		return nil
 	})

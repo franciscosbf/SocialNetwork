@@ -19,24 +19,39 @@ package vars
 // PostgresVarInfo contains variable info
 // such as its dsn key representation,
 // name to fetch its info and if it's
-// Required or not
+// required or not
 type PostgresVarInfo struct {
-	DsnName  string
-	VarName  string
-	Required bool
+	name     string
+	dsn      string
+	required bool
+}
+
+// Name returns the variable name
+func (pvi *PostgresVarInfo) Name() string {
+	return pvi.name
+}
+
+// Dsn returns the dsn key name
+func (pvi *PostgresVarInfo) Dsn() string {
+	return pvi.dsn
+}
+
+// Required returns true if the variable needs to be defined
+func (pvi *PostgresVarInfo) Required() bool {
+	return pvi.required
 }
 
 // confVars contains all
 // client config variables
 var confVars []*PostgresVarInfo
 
-// registerVar registers a given variable that may be Required or not
+// registerVar registers a given variable that may be required or not
 func registerVar(dsnName, varName string, required bool) {
 	info := &PostgresVarInfo{dsnName, varName, required}
 	confVars = append(confVars, info)
 }
 
-// requiredVar registers Required variable
+// requiredVar registers required variable
 func requiredVar(dsnName, varName string) {
 	registerVar(dsnName, varName, true)
 }
@@ -49,9 +64,9 @@ func optionalVar(dsnName, varName string) {
 // infoCopy returns a contents copy of a given var
 func infoCopy(from *PostgresVarInfo) *PostgresVarInfo {
 	return &PostgresVarInfo{
-		DsnName:  from.DsnName,
-		VarName:  from.VarName,
-		Required: from.Required,
+		dsn:      from.dsn,
+		name:     from.name,
+		required: from.required,
 	}
 }
 
