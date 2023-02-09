@@ -18,16 +18,11 @@ package dsn
 
 import (
 	"fmt"
+	"github.com/franciscosbf/micro-dwarf/internal/clis"
 	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/dsn/vars"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"strings"
-)
-
-// Error codes
-const (
-	ErrorCodeInvalidGetVar errorw.ErrorCode = iota
-	ErrorCodeMissingVar
 )
 
 // dsnConn represents dsn connection values
@@ -60,13 +55,13 @@ func Build(confReader *envvars.Config) (string, error) {
 		value, err := confReader.Get(name)
 		if err != nil {
 			return errorw.WrapErrorf(
-				ErrorCodeInvalidGetVar, err, "Invalid DSN var fetch")
+				clis.ErrorCodeInvalidGetVar, err, "Invalid Postgres DSN var fetch")
 		}
 
 		if value == "" {
 			if info.Required {
 				return errorw.WrapErrorf(
-					ErrorCodeMissingVar, nil, "Missing required variable %v", name)
+					clis.ErrorCodeMissingVar, nil, "Missing Postgres required variable %v", name)
 			}
 		} else {
 			raw.add(info.DsnName, value)

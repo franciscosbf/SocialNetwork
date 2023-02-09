@@ -20,4 +20,11 @@ import (
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 )
 
-const ErrorCodeMissingConfig errorw.ErrorCode = 0
+// Error codes
+const (
+	ErrorCodeMissingConfig errorw.ErrorCode = iota
+	ErrorCodeInvalidGetVar
+	ErrorCodeMissingVar
+	ErrorCodeUnacceptedVal
+	ErrorCodeInvalidVarType
+)
