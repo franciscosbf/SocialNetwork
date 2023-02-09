@@ -38,7 +38,7 @@ func TestValidConnection(t *testing.T) {
 
 	defer unsetVars()
 
-	if cli, err := NewPostgresCli(conf); err != nil {
+	if cli, err := NewClient(conf); err != nil {
 		t.Errorf("Unexpecting error: %v", err)
 	} else if cli == nil {
 		t.Errorf("Client should not be nil")

@@ -33,8 +33,8 @@ const (
 	ErrorCodeQueryCheckFail
 )
 
-// NewPostgresCli creates a new pool and checks db connection.
-func NewPostgresCli(confReader *envvars.Config) (*pgxpool.Pool, error) {
+// NewClient creates a new pool and checks db connection.
+func NewClient(confReader *envvars.Config) (*pgxpool.Pool, error) {
 	if confReader == nil {
 		return nil, errorw.WrapErrorf(
 			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
