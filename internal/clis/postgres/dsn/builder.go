@@ -30,25 +30,25 @@ const (
 	ErrorCodeMissingVar
 )
 
-// DsnConn represents dsn connection values
-type DsnConn struct {
+// dsnConn represents dsn connection values
+type dsnConn struct {
 	values []string
 }
 
 // addString adds a string value to dsn.
-func (d *DsnConn) add(key string, value string) {
+func (d *dsnConn) add(key string, value string) {
 	pair := fmt.Sprintf("%v=%v", key, value)
 	d.values = append(d.values, pair)
 }
 
 // unify builds the dsn string
-func (d *DsnConn) unify() string {
+func (d *dsnConn) unify() string {
 	return strings.Join(d.values, " ")
 }
 
 // newBuilder returns a new dsn constructor
-func newBuilder() *DsnConn {
-	return &DsnConn{}
+func newBuilder() *dsnConn {
+	return &dsnConn{}
 }
 
 // Build returns a valid Postgres connection dsn
