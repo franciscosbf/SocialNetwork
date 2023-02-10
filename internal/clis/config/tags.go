@@ -7,7 +7,7 @@ import (
 )
 
 // buildAcceptedTks splits accepted values into
-// tokens and sets puts them into the tokens set
+// tokens and puts them into the tokens set
 func buildAcceptedTks(raw string, tokensSet *utils.Set[string]) {
 	tokens := strings.Split(raw, ",")
 
