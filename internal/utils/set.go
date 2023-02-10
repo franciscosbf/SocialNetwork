@@ -57,6 +57,12 @@ func (s *Set[V]) Copy() (newS *Set[V]) {
 	return
 }
 
+// Size returns the number
+// of stored values
+func (s *Set[V]) Size() int {
+	return len(s.m)
+}
+
 // NewSet returns a new set
 func NewSet[V comparable]() *Set[V] {
 	bucket := make(map[V]struct{})

@@ -78,3 +78,23 @@ func TestSetCopy(t *testing.T) {
 		}
 	}
 }
+
+func TestSetLen(t *testing.T) {
+	s := NewSet[string]()
+
+	if s.Size() != 0 {
+		t.Error("Expecting set with zero size")
+	}
+
+	values := []string{
+		"a", "b", "c", "", " ",
+	}
+
+	for _, v := range values {
+		s.Put(v)
+	}
+
+	if s.Size() != len(values) {
+		t.Errorf("Expecting set to have size %v", len(values))
+	}
+}
