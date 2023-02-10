@@ -68,6 +68,20 @@ func (v *variableInfo) validValues() []string {
 // TODO - "(...) from a reflect.Value it’s easy to get to the corresponding reflect.Type (...)"
 //  Credits: https://go.dev/blog/laws-of-reflection
 
+/*
+TODO
+ type MyInt int
+ var x MyInt = 7
+ reflect.ValueOf(x).Kind() -> int
+ reflect.TypeOf(x).Kind() -> MyInt
+*/
+
+// TODO - check presence of public fields in struct -> produces an empty public fields error
+
+// TODO - "the new defined type and the source type will share the same underlying type (...)
+//  and their values can be converted to each other."
+//  Credits: https://go101.org/article/type-system-overview.html
+
 // extractStr returns a ready to evaluate struct. If it doesn't respect the
 // expected type returns the error InvalidPointerError or InvalidValuePointedError
 func extractStr(possibleStr StructPtr) (*structInfo, error) {
