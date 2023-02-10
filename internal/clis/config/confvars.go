@@ -65,6 +65,9 @@ func (v *variableInfo) validValues() []string {
 	return v.accepted.Values()
 }
 
+// TODO - "(...) from a reflect.Value it’s easy to get to the corresponding reflect.Type (...)"
+//  Credits: https://go.dev/blog/laws-of-reflection
+
 // extractStr returns a ready to evaluate struct. If it doesn't respect the
 // expected type returns the error InvalidPointerError or InvalidValuePointedError
 func extractStr(possibleStr StructPtr) (*structInfo, error) {
