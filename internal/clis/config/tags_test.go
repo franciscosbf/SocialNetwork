@@ -7,7 +7,7 @@ import (
 
 func TestValidTagNameParsing(t *testing.T) {
 	type Dummy struct {
-		F string `name:""`
+		F string `name:"ola"`
 	}
 
 	sf := reflect.TypeOf(&Dummy{}).Elem().Field(0)
