@@ -30,16 +30,31 @@ check_commands() {
   done
 }
 
+# Checks if a given set of files exist
+check_files () {
+  for file in $@; do
+    if ! [ -f $file ]; then
+      panic "$file is missing"
+    fi
+  done
+}
+
 check_variables \
   REPO_NAME \
   REPO_URL \
   RELEASE_NAME \
-  VALUES_FILE
+  VALUES_FILE \
+  NAMESPACE_FILE
 
 check_commands \
   helm \
   jq \
+  yq \
   kubectl
+
+check_files \
+ $VALUES_FILE \
+ $NAMESPACE_FILE
 
 # Checks if the repo was already added. If not, adds it
 HAS_REPO=$(helm repo list -o json | jq ".[].name==\"$REPO_NAME\"")
@@ -54,11 +69,16 @@ if [ "$HAS_RELEASE" != "[]" ]; then
   panic "$RELEASE_NAME release is already installed"
 fi
 
-# Checks if values file is present
-if ! [ -f $VALUES_FILE ]; then
-  panic "$VALUES_FILE is missing"
+# Checks if contains the name label
+HAS_LABEL=$(cat redis-namespace.yaml | yq -M -r ".metadata.labels.name")
+if [ "$HAS_LABEL" = "null" ]; then
+  panic "missing .metadata.labels.name in namespace file $NAMESPACE_FILE"
 fi
+NAMESPACE=$HAS_LABEL
+
+# Applies required namespace
+kubectl apply -f $NAMESPACE_FILE
 
 # Installs the release
 print "installing as $RELEASE_NAME"
-helm install $RELEASE_NAME -f $VALUES_FILE $REPO_NAME/redis
+helm install $RELEASE_NAME -n $NAMESPACE -f $VALUES_FILE $REPO_NAME/redis
