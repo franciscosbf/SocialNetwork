@@ -27,49 +27,65 @@ func typeRep(t any) reflect.Type {
 	return reflect.TypeOf(t).Elem()
 }
 
-// typeConverter represents the function that will try to convert the
-// raw value from a given variable and set it to the corresponding
-// field represented by vRep
+// typeConverter represents the function that will try to convert the raw
+// value from a given variable and set it to the corresponding field represented
+// by vRep. vRep must be a value of a settable struct field
 type typeConverter = func(vRep *reflect.Value, rawVal string) error
 
-// typeConverters contains each type converter
-var typeConverters = []struct {
+// typeConverterInfo contains the pretended
+// type set with typeRep and the associated
+// type converter
+type typeConverterInfo struct {
 	typeRep   reflect.Type
 	converter typeConverter
-}{
-	// String conversion only sets the given raw string
-	{
-		typeRep: typeRep((*string)(nil)),
-		converter: func(vRep *reflect.Value, rawVal string) error {
-			vRep.SetString(rawVal)
+}
 
-			return nil
-		},
-	},
-	// Integer conversion tries to get an int from the given
-	// raw value and set it to the corresponding field
-	{
-		typeRep: typeRep((*int)(nil)),
-		converter: func(vRep *reflect.Value, rawVal string) error {
-			val, err := strconv.Atoi(rawVal)
-			if err == nil {
-				vRep.SetInt(int64(val))
-			}
+// ---------------- Type Converters ----------------
 
-			return err
-		},
-	},
-	// Duration conversion tries to get a valid one from the
-	// given raw value and set it to the corresponding field
-	{
-		typeRep: typeRep((*time.Duration)(nil)),
-		converter: func(vRep *reflect.Value, rawVal string) error {
-			val, err := time.ParseDuration(rawVal)
-			if err == nil {
-				vRep.Set(reflect.ValueOf(val))
-			}
+// parseStringType represents a string converter
+var parseStringType = &typeConverterInfo{
+	typeRep: typeRep((*string)(nil)),
+	// Sets the raw value itself
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		vRep.SetString(rawVal)
 
-			return err
-		},
+		return nil
 	},
+}
+
+var parseIntegerType = &typeConverterInfo{
+	typeRep: typeRep((*int)(nil)),
+	// Tries to get an int from the given raw
+	// value and set it to the corresponding field
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		val, err := strconv.Atoi(rawVal)
+		if err == nil {
+			vRep.SetInt(int64(val))
+		}
+
+		return err
+	},
+}
+
+var parseDurationType = &typeConverterInfo{
+	typeRep: typeRep((*time.Duration)(nil)),
+	// Tries to get a valid one from the given raw
+	// value and set it to the corresponding field
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		val, err := time.ParseDuration(rawVal)
+		if err == nil {
+			vRep.Set(reflect.ValueOf(val))
+		}
+
+		return err
+	},
+}
+
+// ---------------- Type Converters Aggregator ----------------
+
+// typeConverters contains each type converter
+var typeConverters = []*typeConverterInfo{
+	parseStringType,
+	parseIntegerType,
+	parseDurationType,
 }

@@ -24,6 +24,7 @@ import (
 	"strings"
 )
 
+// StructPtr represents any struct pointer
 type StructPtr = any
 
 // Error codes
@@ -36,27 +37,24 @@ const (
 	ErrorCodeInvalidVarType
 )
 
+// VarsConf represents a client config that
+// fetches variables from a given reader
 type VarsConf struct {
 	reader *envvars.Config
 }
 
-type structInfo struct {
-	strType reflect.Type
-	strVal  *reflect.Value
-}
-
+// variableInfo contains all parsed info from a
+// struct field. It's used to evaluate a variable
 type variableInfo struct {
 	varName  string
 	required bool
 	accepted *utils.Set[string]
 	val      *reflect.Value
-	rType    reflect.Type
 	setValue typeConverter
 }
 
 // accepts checks if a given value is valid
 func (v *variableInfo) accepts(val string) bool {
-
 	return v.accepted.Contains(val)
 }
 
@@ -65,111 +63,91 @@ func (v *variableInfo) validValues() []string {
 	return v.accepted.Values()
 }
 
-// TODO - "(...) from a reflect.Value it’s easy to get to the corresponding reflect.Type (...)"
-//  Credits: https://go.dev/blog/laws-of-reflection
-
-/*
-TODO
- type MyInt int
- var x MyInt = 7
- reflect.ValueOf(x).Kind() -> int
- reflect.TypeOf(x).Kind() -> MyInt
-*/
-
-// TODO - check presence of public fields in struct -> produces an empty public fields error
-
-// TODO - "the new defined type and the source type will share the same underlying type (...)
-//  and their values can be converted to each other."
-//  Credits: https://go101.org/article/type-system-overview.html
-
-// extractStr returns a ready to evaluate struct. If it doesn't respect the
+// extractStrVal returns a ready to evaluate struct. If it doesn't respect the
 // expected type returns the error InvalidPointerError or InvalidValuePointedError
-func extractStr(possibleStr StructPtr) (*structInfo, error) {
+func extractStrVal(possibleSrt StructPtr) (*reflect.Value, error) {
 	// Check if is a pointer
-	value := reflect.TypeOf(possibleStr)
+	value := reflect.ValueOf(possibleSrt)
 	if value.Kind() != reflect.Pointer {
 		return nil, InvalidPointerError
 	}
 
 	// Check if points to a struct
-	extractedType := value.Elem()
-	if extractedType.Kind() != reflect.Struct {
+	extractedValue := value.Elem()
+	if extractedValue.Kind() != reflect.Struct {
 		return nil, InvalidValuePointedError
 	}
 
-	// Get struct representation
-	extractedValue := reflect.
-		ValueOf(possibleStr).
-		Elem()
-
-	return &structInfo{
-		strType: extractedType,
-		strVal:  &extractedValue,
-	}, nil
+	return &extractedValue, nil
 }
 
-// setTypeConverter searches in the types converter repository if someone
+// selectTypeConverter searches in the types converter repository if someone
 // matches the field type. If not, then means that is an unsupported type,
 // returning an error
-func setTypeConverter(v *variableInfo, field reflect.StructField) error {
-	var selectedConverter typeConverter
-
-	// Searches for
+func selectTypeConverter(v *variableInfo, field *reflect.StructField) error {
+	// Searches for the corresponding converter
 	for _, pair := range typeConverters {
 		if field.Type.AssignableTo(pair.typeRep) {
-			selectedConverter = pair.converter
-			break
+			v.setValue = pair.converter
+
+			return nil
 		}
 	}
 
-	if selectedConverter == nil {
-		return &UnsupportedTypeError{
-			fieldName: field.Name,
-			typeName:  field.Type.Name(),
-		}
+	return &UnsupportedTypeError{
+		fieldName: field.Name,
+		fieldType: field.Type,
 	}
-
-	v.setValue = selectedConverter
-
-	return nil
 }
 
 // parseFieldTags tries to parse each field tag.
 // Returns an error on the first invalid tag
-func parseFieldTags(v *variableInfo, field *reflect.StructField) error {
-	for _, parser := range tagParsers {
-		if err := parser(v, field); err != nil {
-			return err
-		}
+func parseFieldTags(v *variableInfo, field *reflect.StructField) (err error) {
+	if v.varName, err = parseTagName(field); err != nil {
+		return
 	}
 
-	return nil
+	if v.required, err = parseTagRequired(field); err != nil {
+		return
+	}
+
+	if v.accepted, err = parseTagAccepts(field); err != nil {
+		return
+	}
+
+	return
 }
 
 // parseFields iterates over each struct field, evaluating its type
 // and tags, collecting its type and value representations from
-// reflect pkg. Returns a slice containing info of all struct variables
-func parseFields(info *structInfo) ([]*variableInfo, error) {
-	sType := info.strType
-	fieldsNum := info.strType.NumField()
+// reflect pkg. Returns a slice containing info of all struct variables.
+// Upon some error while evaluating a field, it's returned immediately
+// after have received it
+func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
+	sType := strInfo.Type()
+	fieldsNum := strInfo.NumField()
+
+	if fieldsNum == 0 {
+		return nil, MissingPublicFieldsError
+	}
 
 	var fields []*variableInfo
 
+	// Extracts info from each struct field
 	for i := 0; i < fieldsNum; i++ {
 		newVar := &variableInfo{}
 
 		// Set elements according to Type representation
 		fieldT := sType.Field(i)
-		if err := setTypeConverter(newVar, fieldT); err != nil {
+		if err := selectTypeConverter(newVar, &fieldT); err != nil {
 			return nil, err
 		}
 		if err := parseFieldTags(newVar, &fieldT); err != nil {
 			return nil, err
 		}
-		newVar.rType = fieldT.Type
 
 		// Set value representation
-		fieldV := info.strVal.Field(i)
+		fieldV := strInfo.Field(i)
 		newVar.val = &fieldV
 
 		fields = append(fields, newVar)
@@ -217,13 +195,13 @@ func (vc *VarsConf) fillFields(vars []*variableInfo) error {
 
 // ParseConf TODO - comment this - don't forget to specify the valid representation of duration
 func (vc *VarsConf) ParseConf(from StructPtr) error {
-	str, err := extractStr(from)
+	srtVal, err := extractStrVal(from)
 	if err != nil {
 		return errorw.WrapErrorf(
 			ErrorCodeInvalidConf, err, "Invalid config provided")
 	}
 
-	variables, err := parseFields(str)
+	variables, err := parseFields(srtVal)
 	if err != nil {
 		return errorw.WrapErrorf(
 			ErrorCodeInvalidField, err, "Invalid parsed val")

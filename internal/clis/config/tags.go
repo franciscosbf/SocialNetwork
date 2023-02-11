@@ -22,13 +22,13 @@ import (
 	"strings"
 )
 
-// buildAcceptedTks splits accepted values into
+// buildAcceptedTks splits by a comma all
 // tokens and puts them into the tokens set
-func buildAcceptedTks(raw string, tokensSet *utils.Set[string]) {
+func buildAcceptedTks(raw string, s *utils.Set[string]) {
 	tokens := strings.Split(raw, ",")
 
 	for _, token := range tokens {
-		tokensSet.Put(token)
+		s.Put(token)
 	}
 }
 
@@ -39,59 +39,56 @@ const (
 	acceptsTag  = "accepts"
 )
 
-// tagParser represents the reader that will evaluate
-// and get the content from a given struct field and set
-// the result to the corresponding
-type tagParser = func(v *variableInfo, field *reflect.StructField) error
+// parseTagName fetches the variable name.
+// Returns MissingTagError if it is missing
+func parseTagName(field *reflect.StructField) (string, error) {
+	name, ok := field.Tag.Lookup(nameTag)
+	if !ok || name == "" {
+		return "", &MissingTagError{
+			fieldName: field.Name,
+			tagName:   nameTag,
+		}
+	}
+	return name, nil
+}
 
-// tagParsers contains each tag parser
-var tagParsers = []tagParser{
-	// Parsed name tag
-	func(v *variableInfo, field *reflect.StructField) error {
-		name, ok := field.Tag.Lookup(nameTag)
-		if !ok || name == "" {
-			return &MissingTagError{
-				fieldName: field.Name,
-				tagName:   nameTag,
+// parseTagRequired returns true if set, otherwise false. If field is invalid
+// or the value wasn't recognized returns false and InvalidTagValueError
+func parseTagRequired(field *reflect.StructField) (bool, error) {
+	if required, ok := field.Tag.Lookup(requiredTag); ok {
+		switch required {
+		case "yes", "true":
+			return true, nil
+		case "no", "false": // false by default
+		default:
+			return false, &InvalidTagValueError{
+				fieldName:      field.Name,
+				tagName:        requiredTag,
+				acceptedValues: []string{"yes", "no", "true", "false"},
 			}
 		}
-		v.varName = name
+	}
 
-		return nil
-	},
-	// Parses required tag
-	func(v *variableInfo, field *reflect.StructField) error {
-		if required, ok := field.Tag.Lookup(requiredTag); ok {
-			switch required {
-			case "yes", "true":
-				v.required = true
-			case "no", "false": // false by default
-			default:
-				return &InvalidTagValueError{
-					fieldName:      field.Name,
-					tagName:        requiredTag,
-					acceptedValues: []string{"yes", "no", "true", "false"},
-				}
+	return false, nil
+}
+
+// parseTagAccepts parses each accepted value and returns a set with them.
+// If there isn't any value, returns an empty set. However, if the
+// field is invalid returns InvalidTagValueError
+func parseTagAccepts(field *reflect.StructField) (*utils.Set[string], error) {
+	tokensS := utils.NewSet[string]() // Empty set means that accepts any value
+
+	if accepts, ok := field.Tag.Lookup(acceptsTag); ok {
+		if accepts == "" {
+			return nil, &InvalidTagValueError{
+				fieldName:      field.Name,
+				tagName:        acceptsTag,
+				acceptedValues: []string{"any values separated by a comma, e.g. hi,hello,bye"},
 			}
 		}
 
-		return nil
-	},
-	// Parses accepts tag
-	func(v *variableInfo, field *reflect.StructField) error {
-		v.accepted = utils.NewSet[string]() // Empty set means that accepts any value
-		if accepts, ok := field.Tag.Lookup(acceptsTag); ok {
-			if accepts == "" {
-				return &InvalidTagValueError{
-					fieldName:      field.Name,
-					tagName:        acceptsTag,
-					acceptedValues: []string{"any value separated by a comma, e.g. hi,hello,bye"},
-				}
-			}
+		buildAcceptedTks(accepts, tokensS)
+	}
 
-			buildAcceptedTks(accepts, v.accepted)
-		}
-
-		return nil
-	},
+	return tokensS, nil
 }

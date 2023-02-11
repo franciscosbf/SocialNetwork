@@ -19,11 +19,13 @@ package config
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
+var MissingPublicFieldsError = errors.New("struct doesn't have any public field")
 var InvalidPointerError = errors.New("expecting pointer to struct")
-var InvalidValuePointedError = errors.New("expecting pointer referencing a struct")
+var InvalidValuePointedError = errors.New("expecting pointer referencing a non-nil struct")
 
 type MissingTagError struct {
 	fieldName string
@@ -50,11 +52,11 @@ func (e *InvalidTagValueError) Error() string {
 
 type UnsupportedTypeError struct {
 	fieldName string
-	typeName  string
+	fieldType reflect.Type
 }
 
 func (e *UnsupportedTypeError) Error() string {
 	return fmt.Sprintf(
 		"struct field %v contains unsupported type %v",
-		e.fieldName, e.typeName)
+		e.fieldName, e.fieldType.Name())
 }
