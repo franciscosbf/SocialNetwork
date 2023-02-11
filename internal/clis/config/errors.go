@@ -39,6 +39,21 @@ func (e *MissingTagKeyError) Error() string {
 		e.keyName, e.fieldName)
 }
 
+// UnsupportedTypeError represents a type
+// that the parser couldn't recognize
+type UnsupportedTypeError struct {
+	fieldName string
+	typeName  string
+}
+
+func (e *UnsupportedTypeError) Error() string {
+	return fmt.Sprintf(
+		"struct field %v contains unsupported type %v",
+		e.fieldName, e.typeName)
+}
+
+// InvalidTagKeyValueError represents
+// an unrecognized or missing value
 type InvalidTagKeyValueError struct {
 	fieldName      string
 	keyName        string
@@ -51,17 +66,7 @@ func (e *InvalidTagKeyValueError) Error() string {
 		strings.Join(e.acceptedValues, ","), e.keyName, e.fieldName)
 }
 
-type UnsupportedTypeError struct {
-	fieldName string
-	typeName  string
-}
-
-func (e *UnsupportedTypeError) Error() string {
-	return fmt.Sprintf(
-		"struct field %v contains unsupported type %v",
-		e.fieldName, e.typeName)
-}
-
+// InvalidTagKeyValueFmtError represents a bad formatted value
 type InvalidTagKeyValueFmtError struct {
 	fieldName string
 	keyName   string
