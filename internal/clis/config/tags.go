@@ -77,7 +77,7 @@ func parseTagKeyAccepts(field *reflect.StructField) (*utils.Set[string], error) 
 		return nil, &InvalidTagKeyValueError{
 			fieldName:      field.Name,
 			keyName:        acceptsTagKey,
-			acceptedValues: []string{"any validTokens separated by a comma, e.g. hi,hello,bye"},
+			acceptedValues: []string{"any token separated by a comma, e.g. hi,hello,bye"},
 		}
 	}
 
