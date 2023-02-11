@@ -19,7 +19,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -27,36 +26,51 @@ var MissingPublicFieldsError = errors.New("struct doesn't have any public field"
 var InvalidPointerError = errors.New("expecting pointer to struct")
 var InvalidValuePointedError = errors.New("expecting pointer referencing a non-nil struct")
 
-type MissingTagError struct {
+// MissingTagKeyError represents a struct field
+// with a given missing key in its tag
+type MissingTagKeyError struct {
 	fieldName string
-	tagName   string
+	keyName   string
 }
 
-func (e *MissingTagError) Error() string {
+func (e *MissingTagKeyError) Error() string {
 	return fmt.Sprintf(
 		"missing tag %v in struct field %v",
-		e.tagName, e.fieldName)
+		e.keyName, e.fieldName)
 }
 
-type InvalidTagValueError struct {
+type InvalidTagKeyValueError struct {
 	fieldName      string
-	tagName        string
+	keyName        string
 	acceptedValues []string
 }
 
-func (e *InvalidTagValueError) Error() string {
+func (e *InvalidTagKeyValueError) Error() string {
 	return fmt.Sprintf(
-		"invalid value in tag %v of struct field %v; accepted values %v",
-		strings.Join(e.acceptedValues, ","), e.tagName, e.fieldName)
+		"invalid value in tag key %v of struct field %v; accepted values %v",
+		strings.Join(e.acceptedValues, ","), e.keyName, e.fieldName)
 }
 
 type UnsupportedTypeError struct {
 	fieldName string
-	fieldType reflect.Type
+	typeName  string
 }
 
 func (e *UnsupportedTypeError) Error() string {
 	return fmt.Sprintf(
 		"struct field %v contains unsupported type %v",
-		e.fieldName, e.fieldType.Name())
+		e.fieldName, e.typeName)
+}
+
+type InvalidTagKeyValueFmtError struct {
+	fieldName string
+	keyName   string
+	rawValue  string
+	reason    string
+}
+
+func (e *InvalidTagKeyValueFmtError) Error() string {
+	return fmt.Sprintf(
+		"struct field %v contains invalid value \"%v\" in tag key %v: %v",
+		e.fieldName, e.rawValue, e.keyName, e.reason)
 }

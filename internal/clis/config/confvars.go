@@ -96,22 +96,22 @@ func selectTypeConverter(v *variableInfo, field *reflect.StructField) error {
 
 	return &UnsupportedTypeError{
 		fieldName: field.Name,
-		fieldType: field.Type,
+		typeName:  field.Type.Name(),
 	}
 }
 
-// parseFieldTags tries to parse each field tag.
-// Returns an error on the first invalid tag
-func parseFieldTags(v *variableInfo, field *reflect.StructField) (err error) {
-	if v.varName, err = parseTagName(field); err != nil {
+// parseFieldTagKeys tries to parse each tag key.
+// Returns an error on the first invalid tag element
+func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) {
+	if v.varName, err = parseTagKeyName(field); err != nil {
 		return
 	}
 
-	if v.required, err = parseTagRequired(field); err != nil {
+	if v.required, err = parseTagKeyRequired(field); err != nil {
 		return
 	}
 
-	if v.accepted, err = parseTagAccepts(field); err != nil {
+	if v.accepted, err = parseTagKeyAccepts(field); err != nil {
 		return
 	}
 
@@ -142,7 +142,7 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		if err := selectTypeConverter(newVar, &fieldT); err != nil {
 			return nil, err
 		}
-		if err := parseFieldTags(newVar, &fieldT); err != nil {
+		if err := parseFieldTagKeys(newVar, &fieldT); err != nil {
 			return nil, err
 		}
 

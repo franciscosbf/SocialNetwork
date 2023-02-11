@@ -22,48 +22,38 @@ import (
 	"strings"
 )
 
-// buildAcceptedTks splits by a comma all
-// tokens and puts them into the tokens set
-func buildAcceptedTks(raw string, s *utils.Set[string]) {
-	tokens := strings.Split(raw, ",")
-
-	for _, token := range tokens {
-		s.Put(token)
-	}
-}
-
 // Available tags
 const (
-	nameTag     = "name"
-	requiredTag = "required"
-	acceptsTag  = "accepts"
+	nameTagKey     = "name"
+	requiredTagKey = "required"
+	acceptsTagKey  = "accepts"
 )
 
-// parseTagName fetches the variable name.
-// Returns MissingTagError if it is missing
-func parseTagName(field *reflect.StructField) (string, error) {
-	name, ok := field.Tag.Lookup(nameTag)
+// parseTagKeyName fetches the variable name.
+// Returns MissingTagKeyError if it is missing
+func parseTagKeyName(field *reflect.StructField) (string, error) {
+	name, ok := field.Tag.Lookup(nameTagKey)
 	if !ok || name == "" {
-		return "", &MissingTagError{
+		return "", &MissingTagKeyError{
 			fieldName: field.Name,
-			tagName:   nameTag,
+			keyName:   nameTagKey,
 		}
 	}
 	return name, nil
 }
 
-// parseTagRequired returns true if set, otherwise false. If field is invalid
-// or the value wasn't recognized returns false and InvalidTagValueError
-func parseTagRequired(field *reflect.StructField) (bool, error) {
-	if required, ok := field.Tag.Lookup(requiredTag); ok {
-		switch required {
+// parseTagKeyRequired returns true if set, otherwise false. If field is invalid
+// or the value wasn't recognized returns false and InvalidTagKeyValueError
+func parseTagKeyRequired(field *reflect.StructField) (bool, error) {
+	if required, ok := field.Tag.Lookup(requiredTagKey); ok {
+		switch strings.ToLower(required) {
 		case "yes", "true":
 			return true, nil
 		case "no", "false": // false by default
 		default:
-			return false, &InvalidTagValueError{
+			return false, &InvalidTagKeyValueError{
 				fieldName:      field.Name,
-				tagName:        requiredTag,
+				keyName:        requiredTagKey,
 				acceptedValues: []string{"yes", "no", "true", "false"},
 			}
 		}
@@ -72,23 +62,60 @@ func parseTagRequired(field *reflect.StructField) (bool, error) {
 	return false, nil
 }
 
-// parseTagAccepts parses each accepted value and returns a set with them.
+// parseTagKeyAccepts parses each accepted value and returns a set with them.
 // If there isn't any value, returns an empty set. However, if the
-// field is invalid returns InvalidTagValueError
-func parseTagAccepts(field *reflect.StructField) (*utils.Set[string], error) {
-	tokensS := utils.NewSet[string]() // Empty set means that accepts any value
+// field is invalid returns InvalidTagKeyValueError. In the other hand,
+// if the tag content is invalid (starting/ending with a comma, or
+// some token is an empty string, then returns InvalidTagKeyValueFmtError
+func parseTagKeyAccepts(field *reflect.StructField) (*utils.Set[string], error) {
+	accepts, ok := field.Tag.Lookup(acceptsTagKey)
+	if !ok {
+		return utils.NewSet[string](), nil // Empty set means that accepts any value
+	}
 
-	if accepts, ok := field.Tag.Lookup(acceptsTag); ok {
-		if accepts == "" {
-			return nil, &InvalidTagValueError{
-				fieldName:      field.Name,
-				tagName:        acceptsTag,
-				acceptedValues: []string{"any values separated by a comma, e.g. hi,hello,bye"},
+	if accepts == "" {
+		return nil, &InvalidTagKeyValueError{
+			fieldName:      field.Name,
+			keyName:        acceptsTagKey,
+			acceptedValues: []string{"any validTokens separated by a comma, e.g. hi,hello,bye"},
+		}
+	}
+
+	// Value can't start with a comma
+	if strings.HasPrefix(accepts, ",") {
+		return nil, &InvalidTagKeyValueFmtError{
+			fieldName: field.Name,
+			keyName:   acceptsTagKey,
+			rawValue:  accepts,
+			reason:    "value can't start with a comma",
+		}
+	}
+
+	// Value can't end with a comma
+	if strings.HasSuffix(accepts, ",") {
+		return nil, &InvalidTagKeyValueFmtError{
+			fieldName: field.Name,
+			keyName:   acceptsTagKey,
+			rawValue:  accepts,
+			reason:    "value can't end with a comma",
+		}
+	}
+
+	validTokens := utils.NewSet[string]()
+
+	// Check each one and adds it to the accepted tokens set
+	for _, token := range strings.Split(accepts, ",") {
+		if token == "" {
+			return nil, &InvalidTagKeyValueFmtError{
+				fieldName: field.Name,
+				keyName:   acceptsTagKey,
+				rawValue:  accepts,
+				reason:    "empty token",
 			}
 		}
 
-		buildAcceptedTks(accepts, tokensS)
+		validTokens.Put(token)
 	}
 
-	return tokensS, nil
+	return validTokens, nil
 }
