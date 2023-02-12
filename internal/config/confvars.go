@@ -53,14 +53,14 @@ type variableInfo struct {
 	setValue       typeConverter
 }
 
-// isValid checks if a given value
+// isValidKeyword checks if a given value
 // matches one of the accepted keywords
-func (v *variableInfo) isValid(val string) bool {
+func (v *variableInfo) isValidKeyword(val string) bool {
 	return v.acceptedValues.Contains(val)
 }
 
-// validValues returns a slice of accepted keywords
-func (v *variableInfo) validValues() []string {
+// validKeywords returns a slice of accepted keywords
+func (v *variableInfo) validKeywords() []string {
 	return v.acceptedValues.Values()
 }
 
@@ -162,32 +162,35 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 // Lastly, tries to parse the raw value and set it into the field
 func (vc *VarsConf) fillFields(vars []*variableInfo) error {
 	for _, v := range vars {
-		rawVal, err := vc.reader.Get(v.varName)
+		vName := v.varName
+
+		rawVal, err := vc.reader.Get(vName)
 		if err != nil {
 			return errorw.WrapErrorf(
-				ErrorCodeInvalidGetVar, err, "Invalid Redis config var Fetch")
+				ErrorCodeInvalidGetVar, err,
+				"Error while trying to get value from variable %v", vName)
 		}
 
 		if rawVal == "" {
 			if v.required {
 				return errorw.WrapErrorf(
-					ErrorCodeMissingVar, nil,
-					"Missing Redis required variableInfo %v", v.varName)
+					ErrorCodeMissingVar, nil, "Missing variable %v", vName)
 			}
-			return nil
+
+			continue // struct field value isn't changed
 		}
 
-		if !v.isValid(rawVal) {
+		if !v.isValidKeyword(rawVal) {
 			return errorw.WrapErrorf(
 				ErrorCodeUnacceptedVal, nil,
-				"Unaccepted Redis value %v of variableInfo %v. Only accepts: %v",
-				rawVal, v.varName, strings.Join(v.validValues(), ", "))
+				"Unaccepted value \"%v\" of variable %v. Valid keywords: %v",
+				rawVal, vName, strings.Join(v.validKeywords(), ", "))
 		}
 
 		if err := v.setValue(v.val, rawVal); err != nil {
 			return errorw.WrapErrorf(
 				ErrorCodeInvalidVarType, err,
-				"Invalid Redis type of variableInfo %v", v.varName)
+				"Invalid value type of variable %v", vName)
 		}
 	}
 
