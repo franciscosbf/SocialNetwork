@@ -46,21 +46,22 @@ type VarsConf struct {
 // variableInfo contains all parsed info from a
 // struct field. It's used to evaluate a variable
 type variableInfo struct {
-	varName  string
-	required bool
-	accepted *utils.Set[string]
-	val      *reflect.Value
-	setValue typeConverter
+	varName        string
+	required       bool
+	acceptedValues *utils.Set[string]
+	val            *reflect.Value
+	setValue       typeConverter
 }
 
-// accepts checks if a given value is valid
-func (v *variableInfo) accepts(val string) bool {
-	return v.accepted.Contains(val)
+// isValid checks if a given value
+// matches one of the accepted keywords
+func (v *variableInfo) isValid(val string) bool {
+	return v.acceptedValues.Contains(val)
 }
 
-// validValues returns a slice of accepted values
+// validValues returns a slice of accepted keywords
 func (v *variableInfo) validValues() []string {
-	return v.accepted.Values()
+	return v.acceptedValues.Values()
 }
 
 // extractStrVal returns a ready to evaluate struct. If it doesn't respect the
@@ -111,7 +112,7 @@ func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) 
 		return
 	}
 
-	if v.accepted, err = parseTagKeyAccepts(field); err != nil {
+	if v.acceptedValues, err = parseTagKeyAccepts(field); err != nil {
 		return
 	}
 
@@ -176,7 +177,7 @@ func (vc *VarsConf) fillFields(vars []*variableInfo) error {
 			return nil
 		}
 
-		if v.accepts(rawVal) {
+		if !v.isValid(rawVal) {
 			return errorw.WrapErrorf(
 				ErrorCodeUnacceptedVal, nil,
 				"Unaccepted Redis value %v of variableInfo %v. Only accepts: %v",
