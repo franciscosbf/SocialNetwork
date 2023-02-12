@@ -37,9 +37,9 @@ const (
 	ErrorCodeInvalidVarType
 )
 
-// VarsConf represents a client config that
+// ConfParser represents a client config that
 // fetches variables from a given reader
-type VarsConf struct {
+type ConfParser struct {
 	reader *envvars.Config
 }
 
@@ -160,7 +160,7 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 // fillFields iterates over each field and evaluates the read
 // value from the config reader, according to the parsed info.
 // Lastly, tries to parse the raw value and set it into the field
-func (vc *VarsConf) fillFields(vars []*variableInfo) error {
+func (vc *ConfParser) fillFields(vars []*variableInfo) error {
 	for _, v := range vars {
 		vName := v.varName
 
@@ -198,7 +198,7 @@ func (vc *VarsConf) fillFields(vars []*variableInfo) error {
 }
 
 // ParseConf TODO - comment this - don't forget to specify the valid representation of duration
-func (vc *VarsConf) ParseConf(from StructPtr) error {
+func (vc *ConfParser) ParseConf(from StructPtr) error {
 	srtVal, err := extractStrVal(from)
 	if err != nil {
 		return errorw.WrapErrorf(
@@ -214,9 +214,13 @@ func (vc *VarsConf) ParseConf(from StructPtr) error {
 	return vc.fillFields(variables)
 }
 
-// NewVarsConf TODO - comment this
-func NewVarsConf(varReader *envvars.Config) *VarsConf {
-	return &VarsConf{
-		reader: varReader,
+// NewConfParser TODO - comment this
+func NewConfParser(varReader *envvars.Config) (*ConfParser, error) {
+	if varReader == nil {
+		return nil, MissingVariablesReader
 	}
+
+	return &ConfParser{
+		reader: varReader,
+	}, nil
 }

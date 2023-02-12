@@ -22,6 +22,7 @@ import (
 	"strings"
 )
 
+var MissingVariablesReader = errors.New("received nil varReader")
 var MissingPublicFieldsError = errors.New("struct doesn't have any public field")
 var InvalidPointerError = errors.New("expecting pointer to struct")
 var InvalidValuePointedError = errors.New("expecting pointer referencing a non-nil struct")
