@@ -134,11 +134,94 @@ func TestInvalidTypeConverter(t *testing.T) {
 }
 
 func TestValidTagParser(t *testing.T) {
-	// TODO
+	type Dummy struct {
+		S string `name:"hello" required:"yes" accepts:"pasta,chicken"`
+	}
+
+	f := reflect.
+		TypeOf(&Dummy{}).
+		Elem().
+		Field(0)
+
+	v := &variableInfo{}
+
+	if err := parseFieldTagKeys(v, &f); err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	if v.varName != "hello" {
+		t.Errorf("Expecting variable name hello, got: %v", v.varName)
+	}
+
+	if !v.required {
+		t.Error("Expecting variable as required")
+	}
+
+	if !(v.acceptedValues.Contains("pasta") &&
+		v.acceptedValues.Contains("chicken")) {
+		t.Error("Expecting accepted tokens pasta and chicken: got", v.acceptedValues.Values())
+	}
 }
 
 func TestInvalidTagParser(t *testing.T) {
+	checkError := func(t *testing.T, srtPtr any) {
+		f := reflect.
+			TypeOf(srtPtr).
+			Elem().
+			Field(0)
+
+		if err := parseFieldTagKeys(&variableInfo{}, &f); err == nil {
+			t.Errorf("Expecting getting an error")
+		}
+	}
+
+	testBattery := []struct {
+		name string
+		test func(t *testing.T)
+	}{
+		{
+			name: "TestWithoutName",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					I int `required:"YES"`
+				}{})
+			},
+		},
+		{
+			name: "TestWithInvalidRequired",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					I int `name:"hi" required:"sa"`
+				}{})
+			},
+		},
+		{
+			name: "TestWithInvalidAccepts",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					I int `name:"hi" accepts:","`
+				}{})
+			},
+		},
+	}
+
+	for _, pair := range testBattery {
+		t.Run(pair.name, pair.test)
+	}
+}
+
+func TestValidParseFields(t *testing.T) {
 	// TODO
 }
 
-// TODO - remaining tests
+func TestInvalidParseFields(t *testing.T) {
+	// TODO
+}
+
+func TestValidFillFields(t *testing.T) {
+	// TODO
+}
+
+func TestInvalidFillFields(t *testing.T) {
+	// TODO - important: check whe I int `accepts"a,1"`
+}
