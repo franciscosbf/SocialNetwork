@@ -20,8 +20,8 @@ for each <subsystem>/:
 clis/ - for databases, kafka, redis, rabbitmq, ...
   for each <cli>/:
     |client.go, vars.go and other needed elements|
-common/ - contains generic implementations, interfaces...
-envvars/ - config things 
+config/ - config parser
+envvars/ - environment variables things 
   providers/ - variable providers 
 subsystems/
   for each <subsystem>/:
