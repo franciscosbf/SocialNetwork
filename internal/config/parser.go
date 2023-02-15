@@ -120,10 +120,9 @@ func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) 
 }
 
 // parseFields iterates over each struct field, evaluating its type
-// and tags, collecting its type and value representations from
-// reflect pkg. Returns a slice containing info of all struct variables.
-// Upon some error while evaluating a field, it's returned immediately
-// after have received it
+// and tag elements. Returns a slice containing info of all struct
+// variables. Upon some error while evaluating a field, it's returned
+// immediately after have received it
 func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 	sType := strInfo.Type()
 	fieldsNum := strInfo.NumField()
