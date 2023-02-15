@@ -98,3 +98,11 @@ func TestSetLen(t *testing.T) {
 		t.Errorf("Expecting set to have size %v", len(values))
 	}
 }
+
+func TestEmptySet(t *testing.T) {
+	s := NewSet[string]()
+
+	if !s.Empty() {
+		t.Errorf("Expecting empty set")
+	}
+}

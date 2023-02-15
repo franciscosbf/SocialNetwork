@@ -53,10 +53,10 @@ type variableInfo struct {
 	setValue       typeConverter
 }
 
-// isValidKeyword checks if a given value
-// matches one of the accepted keywords
+// isValidKeyword checks if a given value matches one of the accepted
+// keywords. If it doesn't have any keyword, then returns true.
 func (v *variableInfo) isValidKeyword(val string) bool {
-	return v.acceptedValues.Contains(val)
+	return v.acceptedValues.Empty() || v.acceptedValues.Contains(val)
 }
 
 // validKeywords returns a slice of accepted keywords

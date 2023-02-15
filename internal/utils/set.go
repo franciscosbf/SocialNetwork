@@ -63,6 +63,10 @@ func (s *Set[V]) Size() int {
 	return len(s.m)
 }
 
+func (s *Set[V]) Empty() bool {
+	return s.Size() == 0
+}
+
 // NewSet returns a new set
 func NewSet[V comparable]() *Set[V] {
 	bucket := make(map[V]struct{})
