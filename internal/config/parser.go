@@ -143,7 +143,11 @@ func parseFieldTagKeys(
 
 // validateKeywords checks if each one matches the field type by converting it with the
 // required parser. Returns TypeInconsistencyError if some value has a different type
-func validateKeywords(fieldT reflect.Type, parser typeConverter, accepts *utils.Set[string]) error {
+func validateKeywords(
+	fieldT reflect.Type,
+	parser typeConverter,
+	accepts *utils.Set[string],
+) error {
 	// Used to try to assign each value
 	dummyField := reflect.New(fieldT).Elem()
 
