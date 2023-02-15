@@ -27,7 +27,9 @@ var WithoutFieldsError = errors.New("struct doesn't have any field")
 var InvalidPointerError = errors.New("expecting pointer to struct")
 var InvalidValuePointedError = errors.New("expecting pointer referencing a non-nil struct")
 
-// PrivateFieldError represents a private struct field
+// PrivateFieldError represents a struct field
+// that is private which means is impossible
+// to assign a value to it
 type PrivateFieldError struct {
 	fieldName string
 }

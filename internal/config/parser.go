@@ -128,7 +128,9 @@ func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) 
 // parseFields iterates over each struct field, evaluating its type
 // and tag elements. Returns a slice containing info of all struct
 // variables. Upon some error while evaluating a field, it's returned
-// immediately after have received it
+// immediately after have received it. Errors from this function (not
+// the ones that might be returned from other calls) are WithoutFieldsError
+// and PrivateFieldError.
 func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 	sType := strInfo.Type()
 	fieldsNum := strInfo.NumField()
