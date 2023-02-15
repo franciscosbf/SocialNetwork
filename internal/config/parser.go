@@ -108,11 +108,27 @@ func selectTypeConverter(v *variableInfo, field *reflect.StructField) error {
 }
 
 // parseFieldTagKeys tries to parse each tag key.
-// Returns an error on the first invalid tag element
-func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) {
+// Returns an error on the first invalid tag element.
+// The error that may come directly from this func
+// is RepeatedVarNameError, in case of a variable's
+// name was already assigned to another struct field
+func parseFieldTagKeys(
+	v *variableInfo,
+	field *reflect.StructField,
+	parsedNames map[string]string,
+) (err error) {
 	if v.varName, err = parseTagKeyName(field); err != nil {
 		return
 	}
+
+	if assignedField, ok := parsedNames[v.varName]; ok {
+		return &RepeatedVarNameError{
+			assignedFieldName: assignedField,
+			varName:           v.varName,
+		}
+	}
+	// Otherwise, caches it
+	parsedNames[v.varName] = field.Name
 
 	if v.required, err = parseTagKeyRequired(field); err != nil {
 		return
@@ -158,6 +174,9 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		return nil, WithoutFieldsError
 	}
 
+	// Cache to look for repeated variable names
+	parsedNames := make(map[string]string)
+
 	var fields []*variableInfo
 
 	// Extracts info from each struct field
@@ -175,7 +194,7 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		if err := selectTypeConverter(newVar, &fieldSt); err != nil {
 			return nil, err
 		}
-		if err := parseFieldTagKeys(newVar, &fieldSt); err != nil {
+		if err := parseFieldTagKeys(newVar, &fieldSt, parsedNames); err != nil {
 			return nil, err
 		}
 

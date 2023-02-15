@@ -17,6 +17,8 @@ limitations under the License.
 package config
 
 import (
+	"github.com/franciscosbf/micro-dwarf/internal/envvars"
+	"github.com/franciscosbf/micro-dwarf/internal/envvars/providers"
 	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"reflect"
 	"testing"
@@ -146,7 +148,9 @@ func TestValidTagParser(t *testing.T) {
 
 	v := &variableInfo{}
 
-	if err := parseFieldTagKeys(v, &f); err != nil {
+	fakeM := make(map[string]string)
+
+	if err := parseFieldTagKeys(v, &f, fakeM); err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
@@ -171,7 +175,9 @@ func TestInvalidTagParser(t *testing.T) {
 			Elem().
 			Field(0)
 
-		if err := parseFieldTagKeys(&variableInfo{}, &f); err == nil {
+		fakeM := make(map[string]string)
+
+		if err := parseFieldTagKeys(&variableInfo{}, &f, fakeM); err == nil {
 			t.Errorf("Expecting getting an error")
 		}
 	}
@@ -208,6 +214,25 @@ func TestInvalidTagParser(t *testing.T) {
 
 	for _, pair := range testBattery {
 		t.Run(pair.name, pair.test)
+	}
+}
+
+func TestRepeatedVarName(t *testing.T) {
+	type Dummy struct {
+		I int `name:"Joe"`
+	}
+
+	f := reflect.
+		TypeOf(&Dummy{}).
+		Elem().
+		Field(0)
+
+	fakeM := make(map[string]string)
+	fakeM["Joe"] = ""
+
+	err := parseFieldTagKeys(&variableInfo{}, &f, fakeM)
+	if _, ok := err.(*RepeatedVarNameError); !ok {
+		t.Errorf("Expecting error RepeatedVarNameError. Instead got: %v", err)
 	}
 }
 

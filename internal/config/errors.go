@@ -65,7 +65,8 @@ func (e *UnsupportedTypeError) Error() string {
 		e.fieldName, e.typeName)
 }
 
-// TypeInconsistencyError represents
+// TypeInconsistencyError represents an accepted
+// value that doesn't match the field's type
 type TypeInconsistencyError struct {
 	fieldName string
 	typeName  string
@@ -77,6 +78,19 @@ func (e *TypeInconsistencyError) Error() string {
 		"struct field %v has type %v which "+
 			"doesn't match the accepted value %v",
 		e.fieldName, e.typeName, e.rawValue)
+}
+
+// RepeatedVarNameError represents a variable's name
+// that was already assigned to another field
+type RepeatedVarNameError struct {
+	assignedFieldName string
+	varName           string
+}
+
+func (e *RepeatedVarNameError) Error() string {
+	return fmt.Sprintf(
+		"Variable %v was already assigned to struct field %v",
+		e.varName, e.assignedFieldName)
 }
 
 // InvalidTagKeyValueError represents
