@@ -17,13 +17,39 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars/providers"
+	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 	"github.com/franciscosbf/micro-dwarf/internal/utils"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 )
+
+func setVars(vs map[string]string) {
+	for k, v := range vs {
+		_ = os.Setenv(k, v)
+	}
+}
+
+func unsetVars(vs ...string) {
+	for _, v := range vs {
+		_ = os.Unsetenv(v)
+	}
+}
+
+type FakeProvider struct {
+}
+
+func (fp *FakeProvider) Get(key string) (string, error) {
+	if key == "error" {
+		return "", fmt.Errorf("some error")
+	}
+
+	return os.Getenv(key), nil
+}
 
 func TestExtractionOfValidStruct(t *testing.T) {
 	type DummyStruct struct {
@@ -351,10 +377,128 @@ func TestInvalidParseFields(t *testing.T) {
 	}
 }
 
-func TestValidFillFields(t *testing.T) {
-	// TODO
+func TestValidParseConf(t *testing.T) {
+	type Dummy struct {
+		I int           `name:"var1" required:"yes" accepts:"1,2,3"`
+		S string        `name:"var2" required:"no"`
+		T time.Duration `name:"var3" required:"yes" accepts:"1s,2h3m"`
+	}
+
+	ev := providers.NewEnvVariables()
+	c := envvars.NewConfig(ev)
+
+	cp, err := NewConfParser(c)
+	if err != nil {
+		t.Errorf("Unexptected error from conf parser initializer: %v", err)
+		return
+	}
+
+	d := &Dummy{}
+
+	setVars(map[string]string{
+		"var1": "1",
+		"var2": "ola",
+		"var3": "1s",
+	})
+	defer unsetVars("var1", "var2", "var3")
+
+	if err := cp.ParseConf(d); err != nil {
+		t.Errorf("Unexpected error from config parser: %v", err)
+		return
+	}
+
+	if d.I != 1 {
+		t.Errorf("Expecting I field with 1, got %v", d.I)
+	}
+	if d.S != "ola" {
+		t.Errorf("Expecting I field with ola, got %v", d.S)
+	}
+	expectedT, _ := time.ParseDuration("1s")
+	if d.T != expectedT {
+		t.Errorf("Expecting T field with 1s, got %v", d.T)
+	}
 }
 
-func TestInvalidFillFields(t *testing.T) {
-	// TODO - important: check whe I int `accepts"a,1"`
+func TestInvalidParseConf(t *testing.T) {
+	checkError := func(t *testing.T, srtPtr any, code errorw.ErrorCode, errName string) {
+		c := envvars.NewConfig(&FakeProvider{})
+
+		cp, _ := NewConfParser(c)
+		pErr := cp.ParseConf(srtPtr)
+		if pErr == nil {
+			t.Error("Expecting error, got nil")
+		} else if err, ok := pErr.(*errorw.Wrapper); !ok {
+			t.Errorf("Expecting error of type errorw.Wrapper, got %v", err)
+		} else {
+			if err.Code() != code {
+				t.Errorf("Expecting error code %v", errName)
+			}
+		}
+	}
+
+	testBattery := []struct {
+		name string
+		test func(t *testing.T)
+	}{
+		{
+			name: "TestInvalidConf",
+			test: func(t *testing.T) {
+				checkError(t, struct{}{}, ErrorCodeInvalidConf, "ErrorCodeInvalidConf")
+			},
+		},
+		{
+			name: "TestInvalidField",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					i int `name:"a"`
+				}{}, ErrorCodeInvalidField, "ErrorCodeInvalidField")
+			},
+		},
+		{
+			name: "TestGetVariableError",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					L string `name:"error"`
+				}{}, ErrorCodeInvalidGetVar, "ErrorCodeInvalidGetVar")
+			},
+		},
+		{
+			name: "TestUnsetVariable",
+			test: func(t *testing.T) {
+				checkError(t, &struct {
+					I string `name:"aa" required:"true"`
+				}{}, ErrorCodeMissingVar, "ErrorCodeMissingVar")
+			},
+		},
+		{
+			name: "TestInvalidKeyword",
+			test: func(t *testing.T) {
+				setVars(map[string]string{
+					"aa": "a",
+					"bb": "c",
+				})
+				defer unsetVars("aa", "bb")
+				checkError(t, &struct {
+					I string `name:"aa"`
+					J string `name:"bb" accepts:"hello,bye"`
+				}{}, ErrorCodeUnacceptedVal, "ErrorCodeUnacceptedVal")
+			},
+		},
+		{
+			name: "TestInvalidType",
+			test: func(t *testing.T) {
+				setVars(map[string]string{
+					"aa": "1",
+				})
+				defer unsetVars("aa")
+				checkError(t, &struct {
+					I time.Duration `name:"aa"`
+				}{}, ErrorCodeInvalidVarType, "ErrorCodeInvalidVarType")
+			},
+		},
+	}
+
+	for _, pair := range testBattery {
+		t.Run(pair.name, pair.test)
+	}
 }
