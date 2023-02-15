@@ -61,7 +61,7 @@ func (e *Wrapper) Code() ErrorCode {
 // code and a msg to be formatted with optional parameters. There isn't
 // any verification about the nullability of each parameter
 func WrapErrorf(code ErrorCode, origin error, format string, fmtArgs ...any) error {
-	msg := fmt.Sprintf(format, fmtArgs)
+	msg := fmt.Sprintf(format, fmtArgs...)
 
 	return &Wrapper{
 		code:   code,
