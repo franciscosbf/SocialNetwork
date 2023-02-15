@@ -105,4 +105,10 @@ func TestEmptySet(t *testing.T) {
 	if !s.Empty() {
 		t.Errorf("Expecting empty set")
 	}
+
+	s.Put("a")
+
+	if s.Empty() {
+		t.Errorf("Empty call should have returned false on set with one element")
+	}
 }
