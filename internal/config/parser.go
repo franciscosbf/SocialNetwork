@@ -269,7 +269,7 @@ func (cp *ConfParser) ParseConf(from StructPtr) error {
 	variables, err := parseFields(srtVal)
 	if err != nil {
 		return errorw.WrapErrorf(
-			ErrorCodeInvalidField, err, "Invalid parsed val")
+			ErrorCodeInvalidField, err, "Invalid parsed struct field")
 	}
 
 	return cp.fillFields(variables)
