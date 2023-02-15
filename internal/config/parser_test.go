@@ -211,11 +211,103 @@ func TestInvalidTagParser(t *testing.T) {
 }
 
 func TestValidParseFields(t *testing.T) {
-	// TODO
+	type Dummy struct {
+		S string `name:"hello" required:"yes"`
+		I int    `name:"bye" accepts:"1,2"`
+	}
+
+	sV := reflect.ValueOf(&Dummy{}).Elem()
+	vs, err := parseFields(&sV)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	nVar := sV.NumField()
+	if len(vs) != nVar {
+		t.Errorf("Expecting %v parsed variables", nVar)
+	}
+
+	checkVar := func(v *variableInfo, name string, required bool, accepts ...string) {
+		if name != v.varName {
+			t.Errorf("Invalid variable name %v. Was expecting %v", v.varName, name)
+			return
+		}
+
+		if required != v.required {
+			t.Errorf("Expecting required to be %v of variable %v", required, name)
+			return
+		}
+
+		for _, a := range accepts {
+			if !v.isValidKeyword(a) {
+				t.Errorf("Accepted keyword %v is missing in variable %v", a, name)
+			}
+		}
+	}
+
+	// Struct fields are evaluated from top to bottom
+	checkVar(vs[0], "hello", true)
+	checkVar(vs[1], "bye", false, "1", "2")
 }
 
 func TestInvalidParseFields(t *testing.T) {
-	// TODO
+	testBattery := []struct {
+		name string
+		test func(t *testing.T)
+	}{
+		{
+			name: "TestEmptyStruct",
+			test: func(t *testing.T) {
+				st := reflect.ValueOf(&struct{}{}).Elem()
+				vs, err := parseFields(&st)
+				if err != WithoutFieldsError {
+					t.Errorf("Expecting error WithoutFieldsError, got: %v", err)
+				}
+
+				if vs != nil {
+					t.Errorf("Expecting nil slice, got: %v", vs)
+				}
+			},
+		},
+		{
+			name: "TestStructWithOnlyPrivateFields",
+			test: func(t *testing.T) {
+				st := reflect.ValueOf(&struct {
+					I int    `name:"hello"`
+					s string `name:"hi"`
+				}{}).Elem()
+				vs, err := parseFields(&st)
+				if _, ok := err.(*PrivateFieldError); !ok {
+					t.Errorf("Expecting error PrivateFieldError, got: %v", err)
+				}
+
+				if vs != nil {
+					t.Errorf("Expecting nil slice, got: %v", vs)
+				}
+			},
+		},
+		{
+			name: "TestWithMissingTag",
+			test: func(t *testing.T) {
+				st := reflect.ValueOf(&struct {
+					I int    `name:"joe"`
+					S string `nae:"hi"`
+				}{}).Elem()
+				vs, err := parseFields(&st)
+				if _, ok := err.(*MissingTagKeyError); !ok {
+					t.Errorf("Expecting error MissingTagKeyError, got: %v", err)
+				}
+
+				if vs != nil {
+					t.Errorf("Expecting nil slice, got: %v", vs)
+				}
+			},
+		},
+	}
+
+	for _, pair := range testBattery {
+		t.Run(pair.name, pair.test)
+	}
 }
 
 func TestValidFillFields(t *testing.T) {

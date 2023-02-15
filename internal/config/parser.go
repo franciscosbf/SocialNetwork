@@ -82,6 +82,12 @@ func extractStrVal(possibleSrt StructPtr) (*reflect.Value, error) {
 	return &extractedValue, nil
 }
 
+// isAssignable tells if a given
+// struct field is exported or not
+func isAssignable(field *reflect.Value) bool {
+	return field.CanSet()
+}
+
 // selectTypeConverter searches in the types converter repository if someone
 // matches the field type. If not, then means that is an unsupported type,
 // returning an error
@@ -128,17 +134,23 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 	fieldsNum := strInfo.NumField()
 
 	if fieldsNum == 0 {
-		return nil, MissingPublicFieldsError
+		return nil, WithoutFieldsError
 	}
 
 	var fields []*variableInfo
 
 	// Extracts info from each struct field
 	for i := 0; i < fieldsNum; i++ {
+		fieldV := strInfo.Field(i)
+		fieldT := sType.Field(i)
+
+		if !isAssignable(&fieldV) {
+			return nil, &PrivateFieldError{fieldName: fieldT.Name}
+		}
+
 		newVar := &variableInfo{}
 
 		// Set elements according to Type representation
-		fieldT := sType.Field(i)
 		if err := selectTypeConverter(newVar, &fieldT); err != nil {
 			return nil, err
 		}
@@ -147,7 +159,6 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		}
 
 		// Set value representation
-		fieldV := strInfo.Field(i)
 		newVar.val = &fieldV
 
 		fields = append(fields, newVar)

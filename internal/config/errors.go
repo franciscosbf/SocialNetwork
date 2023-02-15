@@ -23,9 +23,19 @@ import (
 )
 
 var MissingVariablesReader = errors.New("received nil varReader")
-var MissingPublicFieldsError = errors.New("struct doesn't have any public field")
+var WithoutFieldsError = errors.New("struct doesn't have any field")
 var InvalidPointerError = errors.New("expecting pointer to struct")
 var InvalidValuePointedError = errors.New("expecting pointer referencing a non-nil struct")
+
+// PrivateFieldError represents a private struct field
+type PrivateFieldError struct {
+	fieldName string
+}
+
+func (e *PrivateFieldError) Error() string {
+	return fmt.Sprintf(
+		"Field %v is private. It's impossible to assign a value", e.fieldName)
+}
 
 // MissingTagKeyError represents a struct field
 // with a given missing key in its tag
