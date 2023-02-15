@@ -125,6 +125,25 @@ func parseFieldTagKeys(v *variableInfo, field *reflect.StructField) (err error) 
 	return
 }
 
+// validateKeywords checks if each one matches the field type by converting it with the
+// required parser. Returns TypeInconsistencyError if some value has a different type
+func validateKeywords(fieldT reflect.Type, parser typeConverter, accepts *utils.Set[string]) error {
+	// Used to try to assign each value
+	dummyField := reflect.New(fieldT).Elem()
+
+	for _, v := range accepts.Values() {
+		if err := parser(&dummyField, v); err != nil {
+			return &TypeInconsistencyError{
+				fieldName: fieldT.Name(),
+				typeName:  fieldT.Name(),
+				rawValue:  v,
+			}
+		}
+	}
+
+	return nil
+}
+
 // parseFields iterates over each struct field, evaluating its type
 // and tag elements. Returns a slice containing info of all struct
 // variables. Upon some error while evaluating a field, it's returned
@@ -144,19 +163,26 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 	// Extracts info from each struct field
 	for i := 0; i < fieldsNum; i++ {
 		fieldV := strInfo.Field(i)
-		fieldT := sType.Field(i)
+		fieldSt := sType.Field(i)
 
 		if !isAssignable(&fieldV) {
-			return nil, &PrivateFieldError{fieldName: fieldT.Name}
+			return nil, &PrivateFieldError{fieldName: fieldSt.Name}
 		}
 
 		newVar := &variableInfo{}
 
 		// Set elements according to Type representation
-		if err := selectTypeConverter(newVar, &fieldT); err != nil {
+		if err := selectTypeConverter(newVar, &fieldSt); err != nil {
 			return nil, err
 		}
-		if err := parseFieldTagKeys(newVar, &fieldT); err != nil {
+		if err := parseFieldTagKeys(newVar, &fieldSt); err != nil {
+			return nil, err
+		}
+
+		fieldT := fieldSt.Type
+		converter := newVar.setValue
+		keywords := newVar.acceptedValues
+		if err := validateKeywords(fieldT, converter, keywords); err != nil {
 			return nil, err
 		}
 

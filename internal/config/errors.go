@@ -65,6 +65,20 @@ func (e *UnsupportedTypeError) Error() string {
 		e.fieldName, e.typeName)
 }
 
+// TypeInconsistencyError represents
+type TypeInconsistencyError struct {
+	fieldName string
+	typeName  string
+	rawValue  string
+}
+
+func (e *TypeInconsistencyError) Error() string {
+	return fmt.Sprintf(
+		"struct field %v has type %v which "+
+			"doesn't match the accepted value %v",
+		e.fieldName, e.typeName, e.rawValue)
+}
+
 // InvalidTagKeyValueError represents
 // an unrecognized or missing value
 type InvalidTagKeyValueError struct {
@@ -79,7 +93,8 @@ func (e *InvalidTagKeyValueError) Error() string {
 		strings.Join(e.acceptedValues, ","), e.keyName, e.fieldName)
 }
 
-// InvalidTagKeyValueFmtError represents a bad formatted value
+// InvalidTagKeyValueFmtError represents
+// a bad formatted value
 type InvalidTagKeyValueFmtError struct {
 	fieldName string
 	keyName   string

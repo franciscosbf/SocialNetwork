@@ -17,6 +17,7 @@ limitations under the License.
 package config
 
 import (
+	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"reflect"
 	"testing"
 	"time"
@@ -196,7 +197,7 @@ func TestInvalidTagParser(t *testing.T) {
 			},
 		},
 		{
-			name: "TestWithInvalidAccepts",
+			name: "TestWithInvalidAcceptsFmt",
 			test: func(t *testing.T) {
 				checkError(t, &struct {
 					I int `name:"hi" accepts:","`
@@ -207,6 +208,21 @@ func TestInvalidTagParser(t *testing.T) {
 
 	for _, pair := range testBattery {
 		t.Run(pair.name, pair.test)
+	}
+}
+
+func TestInvalidAccepts(t *testing.T) {
+	ft := reflect.
+		TypeOf((*int)(nil)).
+		Elem()
+
+	accepts := utils.NewSet[string]()
+	accepts.Put("1")
+	accepts.Put("str")
+
+	err := validateKeywords(ft, parseIntegerType.converter, accepts)
+	if _, ok := err.(*TypeInconsistencyError); !ok {
+		t.Errorf("Expecting getting error TypeInconsistencyError, got %v", err)
 	}
 }
 
