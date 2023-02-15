@@ -198,11 +198,11 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 // fillFields iterates over each field and evaluates the read
 // value from the config reader, according to the parsed info.
 // Lastly, tries to parse the raw value and set it into the field
-func (vc *ConfParser) fillFields(vars []*variableInfo) error {
+func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 	for _, v := range vars {
 		vName := v.varName
 
-		rawVal, err := vc.reader.Get(vName)
+		rawVal, err := cp.reader.Get(vName)
 		if err != nil {
 			return errorw.WrapErrorf(
 				ErrorCodeInvalidGetVar, err,
@@ -236,7 +236,7 @@ func (vc *ConfParser) fillFields(vars []*variableInfo) error {
 }
 
 // ParseConf TODO - comment this - don't forget to specify the valid representation of duration
-func (vc *ConfParser) ParseConf(from StructPtr) error {
+func (cp *ConfParser) ParseConf(from StructPtr) error {
 	srtVal, err := extractStrVal(from)
 	if err != nil {
 		return errorw.WrapErrorf(
@@ -249,7 +249,7 @@ func (vc *ConfParser) ParseConf(from StructPtr) error {
 			ErrorCodeInvalidField, err, "Invalid parsed val")
 	}
 
-	return vc.fillFields(variables)
+	return cp.fillFields(variables)
 }
 
 // NewConfParser TODO - comment this
