@@ -259,7 +259,7 @@ func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 // ParseConf reads the struct contents (field type, tag and its proper name)
 // and maps each field with the associated variable name specified in its tag,
 // among other configuration elements. Then, extracts and converts the contents
-// fetched by the variables reader provided to NewConfParser. Finally, assigns
+// fetched by the variables reader provided to New. Finally, assigns
 // the resulting value to the corresponding struct field. Errors related to
 // invalid struct pointer or invalid structured fields are returned immediately.
 // In the other hand, errors related to the content returned by the variables
@@ -308,7 +308,7 @@ func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 //	// varReader setup ...
 //
 //	s := &S{}
-//	parser, _ := config.NewConfParser(varReader)
+//	parser, _ := config.New(varReader)
 //	_ := parser.ParseConf(s)
 //	fmt.Println(s)
 func (cp *ConfParser) ParseConf(from StructPtr) error {
@@ -325,10 +325,10 @@ func (cp *ConfParser) ParseConf(from StructPtr) error {
 	return cp.fillFields(variables)
 }
 
-// NewConfParser returns a new config parser with
+// New returns a new config parser with
 // a variables reader associated to it. Returns
 // MissingVariablesReader if varReader is nil
-func NewConfParser(varReader *envvars.Config) (*ConfParser, error) {
+func New(varReader *envvars.Config) (*ConfParser, error) {
 	if varReader == nil {
 		return nil, MissingVariablesReader
 	}

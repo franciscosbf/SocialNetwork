@@ -387,7 +387,7 @@ func TestValidParseConf(t *testing.T) {
 	ev := providers.NewEnvVariables()
 	c := envvars.NewConfig(ev)
 
-	cp, err := NewConfParser(c)
+	cp, err := New(c)
 	if err != nil {
 		t.Errorf("Unexptected error from conf parser initializer: %v", err)
 		return
@@ -423,7 +423,7 @@ func TestInvalidParseConf(t *testing.T) {
 	checkErrorCode := func(t *testing.T, srtPtr any, code errorw.ErrorCode, errName string) {
 		c := envvars.NewConfig(&FakeProvider{})
 
-		cp, _ := NewConfParser(c)
+		cp, _ := New(c)
 		pErr := cp.ParseConf(srtPtr)
 		if pErr == nil {
 			t.Error("Expecting error, got nil")
@@ -445,7 +445,7 @@ func TestInvalidParseConf(t *testing.T) {
 			test: func(t *testing.T) {
 				c := envvars.NewConfig(&FakeProvider{})
 
-				cp, _ := NewConfParser(c)
+				cp, _ := New(c)
 				pErr := cp.ParseConf(struct{}{})
 				if pErr != InvalidPointerError {
 					t.Errorf("Expecting error InvalidPointerError, got: %v", pErr)
@@ -457,7 +457,7 @@ func TestInvalidParseConf(t *testing.T) {
 			test: func(t *testing.T) {
 				c := envvars.NewConfig(&FakeProvider{})
 
-				cp, _ := NewConfParser(c)
+				cp, _ := New(c)
 				pErr := cp.ParseConf(&struct {
 					i int `name:"hello"`
 				}{})
