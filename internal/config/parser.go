@@ -272,9 +272,15 @@ func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 //
 //			- string <- directly parsed
 //
-//			- int <- strconv.Atoi
+//			- int <- strconv.Atoi(raw)
 //
-//			- time.Duration <- time.ParseDuration
+//			- int32 <- strconv.ParseInt(raw, 10, 32)
+//
+//			- uint16 <- strconv.ParseUint(raw, 10, 16)
+//
+//			- time.Duration <- time.ParseDuration(raw)
+//
+//			- bool <- strconv.ParseBool(raw)
 //
 //	2. Valid tag elements:
 //

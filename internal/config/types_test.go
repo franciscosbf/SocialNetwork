@@ -17,6 +17,8 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
+	"math"
 	"reflect"
 	"testing"
 	"time"
@@ -57,6 +59,50 @@ func TestInvalidIntegerParsing(t *testing.T) {
 	}
 }
 
+func TestValidInteger32Parsing(t *testing.T) {
+	var i int32
+
+	v := reflect.ValueOf(&i).Elem()
+	if err := parseInteger32Type.converter(&v, fmt.Sprintf("%v", math.MaxInt32)); err != nil {
+		t.Errorf("Unexptected error %v", err)
+	}
+
+	if i != math.MaxInt32 {
+		t.Errorf("Expecting assign value \"%v\", got: %v", math.MaxInt32, i)
+	}
+}
+
+func TestInvalidInteger32Parsing(t *testing.T) {
+	var i int32
+
+	v := reflect.ValueOf(&i).Elem()
+	if err := parseInteger32Type.converter(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
+		t.Error("Expecting getting an error")
+	}
+}
+
+func TestValidUnsignedInteger16Parsing(t *testing.T) {
+	var i uint16
+
+	v := reflect.ValueOf(&i).Elem()
+	if err := parseUnsignedInteger16Type.converter(&v, fmt.Sprintf("%v", math.MaxUint16)); err != nil {
+		t.Errorf("Unexptected error %v", err)
+	}
+
+	if i != math.MaxUint16 {
+		t.Errorf("Expecting assign value \"%v\", got: %v", math.MaxUint16, i)
+	}
+}
+
+func TestInvalidUnsignedInteger16Parsing(t *testing.T) {
+	var i uint16
+
+	v := reflect.ValueOf(&i).Elem()
+	if err := parseUnsignedInteger16Type.converter(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
+		t.Error("Expecting getting an error")
+	}
+}
+
 func TestValidDurationParsing(t *testing.T) {
 	var d time.Duration
 
@@ -76,6 +122,28 @@ func TestInvalidDurationParsing(t *testing.T) {
 
 	v := reflect.ValueOf(&d).Elem()
 	if err := parseDurationType.converter(&v, "1h2mm"); err == nil {
+		t.Error("Expecting getting an error")
+	}
+}
+
+func TestValidBoolParsing(t *testing.T) {
+	var b bool
+
+	v := reflect.ValueOf(&b).Elem()
+	if err := parseBoolType.converter(&v, "true"); err != nil {
+		t.Errorf("Unexptected error %v", err)
+	}
+
+	if !b {
+		t.Errorf("Expecting true")
+	}
+}
+
+func TestInvalidBoolParsing(t *testing.T) {
+	var b bool
+
+	v := reflect.ValueOf(&b).Elem()
+	if err := parseBoolType.converter(&v, "lol"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }

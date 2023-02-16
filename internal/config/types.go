@@ -67,6 +67,34 @@ var parseIntegerType = &typeConverterInfo{
 	},
 }
 
+var parseInteger32Type = &typeConverterInfo{
+	typeRep: typeRep((*int32)(nil)),
+	// Tries to get an int32 from the given raw
+	// value and set it to the corresponding field
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		val, err := strconv.ParseInt(rawVal, 10, 32)
+		if err == nil {
+			vRep.SetInt(val)
+		}
+
+		return err
+	},
+}
+
+var parseUnsignedInteger16Type = &typeConverterInfo{
+	typeRep: typeRep((*uint16)(nil)),
+	// Tries to get an uint16 from the given raw
+	// value and set it to the corresponding field
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		val, err := strconv.ParseUint(rawVal, 10, 16)
+		if err == nil {
+			vRep.SetUint(val)
+		}
+
+		return err
+	},
+}
+
 var parseDurationType = &typeConverterInfo{
 	typeRep: typeRep((*time.Duration)(nil)),
 	// Tries to get a valid one from the given raw
@@ -81,11 +109,28 @@ var parseDurationType = &typeConverterInfo{
 	},
 }
 
+var parseBoolType = &typeConverterInfo{
+	typeRep: typeRep((*bool)(nil)),
+	// Tries to get a bool from the given raw
+	// value and set it to the corresponding field
+	converter: func(vRep *reflect.Value, rawVal string) error {
+		val, err := strconv.ParseBool(rawVal)
+		if err == nil {
+			vRep.SetBool(val)
+		}
+
+		return err
+	},
+}
+
 // ---------------- Type Converters Aggregator ----------------
 
 // typeConverters contains each type converter
 var typeConverters = []*typeConverterInfo{
 	parseStringType,
 	parseIntegerType,
+	parseInteger32Type,
+	parseUnsignedInteger16Type,
 	parseDurationType,
+	parseBoolType,
 }
