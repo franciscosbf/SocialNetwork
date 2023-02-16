@@ -420,7 +420,7 @@ func TestValidParseConf(t *testing.T) {
 }
 
 func TestInvalidParseConf(t *testing.T) {
-	checkError := func(t *testing.T, srtPtr any, code errorw.ErrorCode, errName string) {
+	checkErrorCode := func(t *testing.T, srtPtr any, code errorw.ErrorCode, errName string) {
 		c := envvars.NewConfig(&FakeProvider{})
 
 		cp, _ := NewConfParser(c)
@@ -443,21 +443,33 @@ func TestInvalidParseConf(t *testing.T) {
 		{
 			name: "TestInvalidConf",
 			test: func(t *testing.T) {
-				checkError(t, struct{}{}, ErrorCodeInvalidConf, "ErrorCodeInvalidConf")
+				c := envvars.NewConfig(&FakeProvider{})
+
+				cp, _ := NewConfParser(c)
+				pErr := cp.ParseConf(struct{}{})
+				if pErr != InvalidPointerError {
+					t.Errorf("Expecting error InvalidPointerError, got: %v", pErr)
+				}
 			},
 		},
 		{
 			name: "TestInvalidField",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
-					i int `name:"a"`
-				}{}, ErrorCodeInvalidField, "ErrorCodeInvalidField")
+				c := envvars.NewConfig(&FakeProvider{})
+
+				cp, _ := NewConfParser(c)
+				pErr := cp.ParseConf(&struct {
+					i int `name:"hello"`
+				}{})
+				if _, ok := pErr.(*PrivateFieldError); !ok {
+					t.Errorf("Expecting error of type PrivateFieldError, got: %v", pErr)
+				}
 			},
 		},
 		{
 			name: "TestGetVariableError",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
+				checkErrorCode(t, &struct {
 					L string `name:"error"`
 				}{}, ErrorCodeInvalidGetVar, "ErrorCodeInvalidGetVar")
 			},
@@ -465,7 +477,7 @@ func TestInvalidParseConf(t *testing.T) {
 		{
 			name: "TestUnsetVariable",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
+				checkErrorCode(t, &struct {
 					I string `name:"aa" required:"true"`
 				}{}, ErrorCodeMissingVar, "ErrorCodeMissingVar")
 			},
@@ -478,7 +490,7 @@ func TestInvalidParseConf(t *testing.T) {
 					"bb": "c",
 				})
 				defer unsetVars("aa", "bb")
-				checkError(t, &struct {
+				checkErrorCode(t, &struct {
 					I string `name:"aa"`
 					J string `name:"bb" accepts:"hello,bye"`
 				}{}, ErrorCodeUnacceptedVal, "ErrorCodeUnacceptedVal")
@@ -491,7 +503,7 @@ func TestInvalidParseConf(t *testing.T) {
 					"aa": "1",
 				})
 				defer unsetVars("aa")
-				checkError(t, &struct {
+				checkErrorCode(t, &struct {
 					I time.Duration `name:"aa"`
 				}{}, ErrorCodeInvalidVarType, "ErrorCodeInvalidVarType")
 			},

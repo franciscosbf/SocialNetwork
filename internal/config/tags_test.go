@@ -21,6 +21,54 @@ import (
 	"testing"
 )
 
+func TestValidVarNameRegex(t *testing.T) {
+	checkAcceptance := func(s string) {
+		if !varNameRegex.MatchString(s) {
+			t.Errorf("Expected match with %v", s)
+		}
+	}
+
+	strs := []string{
+		"A_A",
+		"A1_",
+		"A_",
+		"l1",
+		"d",
+		"Y",
+		"aGA1HA2__3GA_GH43I_Aa4g_GHA_",
+	}
+
+	for _, s := range strs {
+		checkAcceptance(s)
+	}
+}
+
+func TestInvalidVarNameRegex(t *testing.T) {
+	checkFailure := func(s string) {
+		if varNameRegex.MatchString(s) {
+			t.Errorf("Expected %v to be rejected", s)
+		}
+	}
+
+	strs := []string{
+		"",
+		" ",
+		"_",
+		"___A",
+		"çdf",
+		"@",
+		"1AD",
+		"4",
+		"  a_1",
+		"e32_ED   ",
+		"		sdfe32_ED   ",
+	}
+
+	for _, s := range strs {
+		checkFailure(s)
+	}
+}
+
 func TestValidTagKeyNameParsing(t *testing.T) {
 	type Dummy struct {
 		F string `name:"ola"`
@@ -38,16 +86,26 @@ func TestValidTagKeyNameParsing(t *testing.T) {
 }
 
 func TestInvalidTagKeyNameParsing(t *testing.T) {
-	checkError := func(t *testing.T, srtPtr any) {
+	fetchError := func(t *testing.T, srtPtr any) error {
 		sf := reflect.TypeOf(srtPtr).Elem().Field(0)
 
 		name, err := parseTagKeyName(&sf)
-		if _, ok := err.(*MissingTagKeyError); !ok {
-			t.Errorf("Expecting error MissingTagKeyError, got: %v", err)
-		}
-
 		if name != "" {
 			t.Errorf("Expecting empty returned string, got %v", name)
+		}
+
+		return err
+	}
+
+	checkPresence := func(t *testing.T, err error) {
+		if _, ok := err.(*MissingTagKeyError); !ok {
+			t.Errorf("Expecting error to be of type MissingTagKeyError, got: %v", err)
+		}
+	}
+
+	checkName := func(t *testing.T, err error) {
+		if _, ok := err.(*InvalidTagKeyValueFmtError); !ok {
+			t.Errorf("Expecting error to be of type InvalidTagKeyValueFmtError, got: %v", err)
 		}
 	}
 
@@ -58,25 +116,37 @@ func TestInvalidTagKeyNameParsing(t *testing.T) {
 		{
 			name: "TestMissingTagName",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
+				err := fetchError(t, &struct {
 					F string ``
 				}{})
+				checkPresence(t, err)
 			},
 		},
 		{
 			name: "TestWithInvalidValue",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
+				err := fetchError(t, &struct {
 					F string `name:"`
 				}{})
+				checkPresence(t, err)
 			},
 		},
 		{
 			name: "TestWithEmptyValue",
 			test: func(t *testing.T) {
-				checkError(t, &struct {
+				err := fetchError(t, &struct {
 					F string `name:""`
 				}{})
+				checkPresence(t, err)
+			},
+		},
+		{
+			name: "TestInvalidName",
+			test: func(t *testing.T) {
+				err := fetchError(t, &struct {
+					F string `name:"_22"`
+				}{})
+				checkName(t, err)
 			},
 		},
 	}
@@ -108,7 +178,7 @@ func TestValidTagKeyRequiredParsing(t *testing.T) {
 			name: "TestWithTrue",
 			test: func(t *testing.T) {
 				checkReturn(t, true, &struct {
-					I int `required:"tRUe"`
+					I int `required:"    tRUe"`
 				}{})
 			},
 		},
@@ -124,7 +194,7 @@ func TestValidTagKeyRequiredParsing(t *testing.T) {
 			name: "TestWithFalse",
 			test: func(t *testing.T) {
 				checkReturn(t, false, &struct {
-					I int `required:"FalSE"`
+					I int `required:"    FalSE    "`
 				}{})
 			},
 		},
@@ -240,7 +310,7 @@ func TestValidTagKeyAcceptsParsing(t *testing.T) {
 			name: "TestWithSomeValues2",
 			test: func(t *testing.T) {
 				checkReturn(t, []string{"one", "two", "three"}, &struct {
-					S int `accepts:"one,two,three"`
+					S int `accepts:"  one,   two   ,   three"`
 				}{})
 			},
 		},
@@ -287,10 +357,10 @@ func TestInvalidTagKeyAcceptsParsing(t *testing.T) {
 			},
 		},
 		{
-			name: "TestWithInvalidSuffix",
+			name: "TestWithInvalidPrefixWithSpaces",
 			test: func(t *testing.T) {
 				checkInvalidFormat(t, &struct {
-					I int `accepts:",a,d,b"`
+					I int `accepts:"  ,a,d,b"`
 				}{})
 			},
 		},
@@ -298,7 +368,31 @@ func TestInvalidTagKeyAcceptsParsing(t *testing.T) {
 			name: "TestWithInvalidPrefix",
 			test: func(t *testing.T) {
 				checkInvalidFormat(t, &struct {
+					I int `accepts:",a,d,b"`
+				}{})
+			},
+		},
+		{
+			name: "TestWithInvalidSuffixWithSpaces",
+			test: func(t *testing.T) {
+				checkInvalidFormat(t, &struct {
+					I int `accepts:"a,d,b,   "`
+				}{})
+			},
+		},
+		{
+			name: "TestWithInvalidSuffix",
+			test: func(t *testing.T) {
+				checkInvalidFormat(t, &struct {
 					I int `accepts:"a,d,b,"`
+				}{})
+			},
+		},
+		{
+			name: "TestWithInvalidTokensWithSpaces",
+			test: func(t *testing.T) {
+				checkInvalidFormat(t, &struct {
+					I int `accepts:"a,  s,   ,e"`
 				}{})
 			},
 		},
@@ -306,7 +400,7 @@ func TestInvalidTagKeyAcceptsParsing(t *testing.T) {
 			name: "TestWithInvalidTokens",
 			test: func(t *testing.T) {
 				checkInvalidFormat(t, &struct {
-					I int `accepts:"a,,,e"`
+					I int `accepts:"a,ds,,e"`
 				}{})
 			},
 		},

@@ -29,9 +29,7 @@ type StructPtr = any
 
 // Error codes
 const (
-	ErrorCodeInvalidConf errorw.ErrorCode = iota
-	ErrorCodeInvalidField
-	ErrorCodeInvalidGetVar
+	ErrorCodeInvalidGetVar errorw.ErrorCode = iota
 	ErrorCodeMissingVar
 	ErrorCodeUnacceptedVal
 	ErrorCodeInvalidVarType
@@ -258,24 +256,72 @@ func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 	return nil
 }
 
-// ParseConf TODO - comment this - don't forget to specify the valid representation of duration
+// ParseConf reads the struct contents (field type, tag and its proper name)
+// and maps each field with the associated variable name specified in its tag,
+// among other configuration elements. Then, extracts and converts the contents
+// fetched by the variables reader provided to NewConfParser. Finally, assigns
+// the resulting value to the corresponding struct field. Errors related to
+// invalid struct pointer or invalid structured fields are returned immediately.
+// In the other hand, errors related to the content returned by the variables
+// reader are wrapped by errorw.Wrapper. Tag element value is trimmed,
+// e.g. name:" VARIABLE_1  "  results in "VARIABLE_1"
+//
+//	Restrictions:
+//
+//	1. Valid types and their conversions:
+//
+//			- string <- directly parsed
+//
+//			- int <- strconv.Atoi
+//
+//			- time.Duration <- time.ParseDuration
+//
+//	2. Valid tag elements:
+//
+//	    	- name: variable's name (required) in the
+//	     	format `[a-zA-Z]\w+`
+//
+//	    	- required: valid keywords are true,false,
+//	    	yes and no (field is optional by default)
+//
+//	    	- accepts: accepted keywords, separated by
+//	    	a comma, that can be passed to a given variable
+//	    	(if omitted, it means that are all accepted)
+//
+//	Struct example:
+//
+//	type S struct {
+//		A int `name:"VAR_1" accepts:"1,2,  3   "`
+//		B string `name:"    VAR_2" required:"yes   ", accepts:"bark,meow"`
+//		C time.Duration `name:"VAR_3" required:"   false"`
+//	}
+//
+//	// Defined variables: VAR_1=2, VAR_2=bark, VAR_3=1h30m
+//
+//	var varReader envvars.Config
+//	// varReader setup ...
+//
+//	s := &S{}
+//	parser, _ := config.NewConfParser(varReader)
+//	_ := parser.ParseConf(s)
+//	fmt.Println(s)
 func (cp *ConfParser) ParseConf(from StructPtr) error {
 	srtVal, err := extractStrVal(from)
 	if err != nil {
-		return errorw.WrapErrorf(
-			ErrorCodeInvalidConf, err, "Invalid config provided")
+		return err
 	}
 
 	variables, err := parseFields(srtVal)
 	if err != nil {
-		return errorw.WrapErrorf(
-			ErrorCodeInvalidField, err, "Invalid parsed struct field")
+		return err
 	}
 
 	return cp.fillFields(variables)
 }
 
-// NewConfParser TODO - comment this
+// NewConfParser returns a new config parser with
+// a variables reader associated to it. Returns
+// MissingVariablesReader if varReader is nil
 func NewConfParser(varReader *envvars.Config) (*ConfParser, error) {
 	if varReader == nil {
 		return nil, MissingVariablesReader

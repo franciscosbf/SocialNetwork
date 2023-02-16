@@ -17,8 +17,10 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
 	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -29,23 +31,49 @@ const (
 	acceptsTagKey  = "accepts"
 )
 
+// polishString removes blank spaces from the
+// leading and trailing of a given string
+func polishString(s string) string {
+	return strings.Trim(s, " ")
+}
+
+// lookupKey searches for the key in the tag of a given field
+func lookupKey(field *reflect.StructField, key string) (string, bool) {
+	value, ok := field.Tag.Lookup(key)
+
+	return polishString(value), ok
+}
+
+// varNameRegex is used to validate variable's name
+var varNameRegex = regexp.MustCompile(`^[a-zA-Z]\w*$`)
+
 // parseTagKeyName fetches the variable name.
 // Returns MissingTagKeyError if it is missing
 func parseTagKeyName(field *reflect.StructField) (string, error) {
-	name, ok := field.Tag.Lookup(nameTagKey)
+	name, ok := lookupKey(field, nameTagKey)
 	if !ok || name == "" {
 		return "", &MissingTagKeyError{
 			fieldName: field.Name,
 			keyName:   nameTagKey,
 		}
+	} else if !varNameRegex.MatchString(name) {
+		return "", &InvalidTagKeyValueFmtError{
+			fieldName: field.Name,
+			keyName:   nameTagKey,
+			rawValue:  name,
+			reason: fmt.Sprintf(
+				"invalid variable's name; accepted pattern: %v",
+				varNameRegex.String()),
+		}
 	}
+
 	return name, nil
 }
 
 // parseTagKeyRequired returns true if set, otherwise false. If field is invalid
 // or the value wasn't recognized returns false and InvalidTagKeyValueError
 func parseTagKeyRequired(field *reflect.StructField) (bool, error) {
-	if required, ok := field.Tag.Lookup(requiredTagKey); ok {
+	if required, ok := lookupKey(field, requiredTagKey); ok {
 		switch strings.ToLower(required) {
 		case "yes", "true":
 			return true, nil
@@ -68,7 +96,7 @@ func parseTagKeyRequired(field *reflect.StructField) (bool, error) {
 // if the tag content is invalid (starting/ending with a comma, or
 // some token is an empty string, then returns InvalidTagKeyValueFmtError
 func parseTagKeyAccepts(field *reflect.StructField) (*utils.Set[string], error) {
-	accepts, ok := field.Tag.Lookup(acceptsTagKey)
+	accepts, ok := lookupKey(field, acceptsTagKey)
 	if !ok {
 		return utils.NewSet[string](), nil // Empty set means that accepts any value
 	}
@@ -105,6 +133,8 @@ func parseTagKeyAccepts(field *reflect.StructField) (*utils.Set[string], error) 
 
 	// Check each one and adds it to the accepted tokens set
 	for _, token := range strings.Split(accepts, ",") {
+		token = polishString(token)
+
 		if token == "" {
 			return nil, &InvalidTagKeyValueFmtError{
 				fieldName: field.Name,
