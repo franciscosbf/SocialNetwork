@@ -19,7 +19,9 @@ for each <subsystem>/:
 ```text
 clis/ - for databases, kafka, redis, rabbitmq, ...
   for each <cli>/:
-    |client.go, vars.go and other needed elements|
+    config/
+      |builder.go - to define variables config|
+    |client.go - contains client initializer|
 config/ - config parser
 envvars/ - environment variables things 
   providers/ - variable providers 
