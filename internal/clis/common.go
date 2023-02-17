@@ -23,10 +23,6 @@ import (
 // Error codes
 const (
 	ErrorCodeMissingConfig errorw.ErrorCode = iota
-	ErrorCodeInvalidGetVar
-	ErrorCodeMissingVar
-	ErrorCodeUnacceptedVal
-	ErrorCodeInvalidVarType
 	ErrorCodeConnFail
 	ErrorCodeVarReader
 	ErrorCodeClientConfigFail
