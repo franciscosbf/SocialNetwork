@@ -31,17 +31,11 @@ const (
 	acceptsTagKey  = "accepts"
 )
 
-// polishString removes blank spaces from the
-// leading and trailing of a given string
-func polishString(s string) string {
-	return strings.Trim(s, " \t\n\v\f\r")
-}
-
 // lookupKey searches for the key in the tag of a given field
 func lookupKey(field *reflect.StructField, key string) (string, bool) {
 	value, ok := field.Tag.Lookup(key)
 
-	return polishString(value), ok
+	return utils.PolishString(value), ok
 }
 
 // varNameRegex is used to validate variable's name
@@ -137,7 +131,7 @@ func parseTagKeyAccepts(field *reflect.StructField) (*utils.Set[string], error) 
 
 	// Check each one and adds it to the accepted tokens set
 	for _, token := range strings.Split(accepts, ",") {
-		token = polishString(token)
+		token = utils.PolishString(token)
 
 		if token == "" {
 			return nil, &InvalidTagKeyValueFmtError{
