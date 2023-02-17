@@ -48,8 +48,8 @@ func dsnConn(varsConf *config.PostgresConfig) (dsn string) {
 	return
 }
 
-// populatePoolDefs sets up all pgxConf parameters if present in varsConf
-func populatePoolDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) {
+// populatePgxDefs sets up all pgxConf parameters if present in varsConf
+func populatePgxDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) {
 	utils.SetAny(varsConf.PoolMaxCons, &pgxConf.MaxConns)
 	utils.SetAny(varsConf.PoolMinCons, &pgxConf.MinConns)
 	utils.SetAny(varsConf.PoolMaxConnLifetime, &pgxConf.MaxConnLifetime)
@@ -81,7 +81,7 @@ func New(vReader *envvars.VarReader) (*pgxpool.Pool, error) {
 
 	fmt.Println(pgxConf.ConnConfig.ConnString())
 
-	populatePoolDefs(varsConf, pgxConf)
+	populatePgxDefs(varsConf, pgxConf)
 
 	pool, err := pgxpool.ConnectConfig(context.Background(), pgxConf)
 	if err != nil {
