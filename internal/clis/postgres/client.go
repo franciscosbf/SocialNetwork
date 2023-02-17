@@ -18,49 +18,81 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"github.com/franciscosbf/micro-dwarf/internal/clis"
-	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/dsn"
+	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/config"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
+	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// Error codes
 const (
-	ErrorCodeDsnFail errorw.ErrorCode = iota
-	ErrorCodeConfigFail
-	ErrorCodeConnFail
-	ErrorCodeQueryCheckFail
+	ErrorCodeQueryCheckFail errorw.ErrorCode = iota
 )
 
-// NewClient creates a new pool and checks db connection.
-func NewClient(confReader *envvars.Config) (*pgxpool.Pool, error) {
-	if confReader == nil {
+// dsnConn returns a dsn containing only connection elements
+func dsnConn(varsConf *config.PoolConfig) (dsn string) {
+	dsn = fmt.Sprintf(
+		"user=%v password=%v host=%v dbname=%v",
+		varsConf.User, varsConf.Password, varsConf.Host, varsConf.Dbname)
+
+	if port := varsConf.Port; port != 0 {
+		dsn = fmt.Sprintf("%v port=%v", dsn, port)
+	}
+
+	if sslMode := varsConf.SslMode; sslMode != "" {
+		dsn = fmt.Sprintf("%v sslmode=%v", dsn, sslMode)
+	}
+
+	return
+}
+
+// populatePoolDefs sets up all pgxConf parameters if present in varsConf
+func populatePoolDefs(varsConf *config.PoolConfig, pgxConf *pgxpool.Config) {
+	utils.SetAny(varsConf.PoolMaxCons, &pgxConf.MaxConns)
+	utils.SetAny(varsConf.PoolMinCons, &pgxConf.MinConns)
+	utils.SetAny(varsConf.PoolMaxConnLifetime, &pgxConf.MaxConnLifetime)
+	utils.SetAny(varsConf.PoolMaxConnIdleTime, &pgxConf.MaxConnIdleTime)
+	utils.SetAny(varsConf.PoolHealthCheckPeriod, &pgxConf.HealthCheckPeriod)
+	utils.SetAny(varsConf.PoolMaxConnLifetimeJitter, &pgxConf.MaxConnLifetimeJitter)
+}
+
+// New creates a new pool and checks db connection
+func New(vReader *envvars.VarReader) (*pgxpool.Pool, error) {
+	if vReader == nil {
 		return nil, errorw.WrapErrorf(
 			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
 	}
 
-	dsnConn, err := dsn.Build(confReader)
-	if err != nil {
-		return nil, errorw.WrapErrorf(ErrorCodeDsnFail, err, "Couldn't build dsnConn")
-	}
-
-	conf, err := pgxpool.ParseConfig(dsnConn)
+	varsConf, err := config.New(vReader)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeConfigFail, err, "Invalid Postgres config")
+			clis.ErrorCodeVarReader, err, "Couldn't build Postgres variables config")
 	}
 
-	pool, err := pgxpool.ConnectConfig(context.Background(), conf)
+	dsn := dsnConn(varsConf)
+
+	pgxConf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeConnFail, err, "Couldn't create Postgres pool")
+			clis.ErrorCodeClientConfigFail, err, "Invalid Postgres config")
+	}
+
+	fmt.Println(pgxConf.ConnConfig.ConnString())
+
+	populatePoolDefs(varsConf, pgxConf)
+
+	pool, err := pgxpool.ConnectConfig(context.Background(), pgxConf)
+	if err != nil {
+		return nil, errorw.WrapErrorf(
+			clis.ErrorCodeConnFail, err, "Couldn't create Postgres pool")
 	}
 
 	// Checks if connection is ok
 	if err := pool.Ping(context.Background()); err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeQueryCheckFail, err, "Couldn't perform a connection query check in Postgres database")
+			ErrorCodeQueryCheckFail, err, "Couldn't perform query check in Postgres database")
 	}
 
 	return pool, err

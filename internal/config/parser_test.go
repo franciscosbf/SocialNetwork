@@ -385,7 +385,7 @@ func TestValidParseConf(t *testing.T) {
 	}
 
 	ev := providers.NewEnvVariables()
-	c := envvars.NewConfig(ev)
+	c := envvars.New(ev)
 
 	cp, err := New(c)
 	if err != nil {
@@ -421,7 +421,7 @@ func TestValidParseConf(t *testing.T) {
 
 func TestInvalidParseConf(t *testing.T) {
 	checkErrorCode := func(t *testing.T, srtPtr any, code errorw.ErrorCode, errName string) {
-		c := envvars.NewConfig(&FakeProvider{})
+		c := envvars.New(&FakeProvider{})
 
 		cp, _ := New(c)
 		pErr := cp.ParseConf(srtPtr)
@@ -431,7 +431,7 @@ func TestInvalidParseConf(t *testing.T) {
 			t.Errorf("Expecting error of type errorw.Wrapper, got %v", err)
 		} else {
 			if err.Code() != code {
-				t.Errorf("Expecting error code %v", errName)
+				t.Errorf("Expecting error code %v, got %v", errName, err.String())
 			}
 		}
 	}
@@ -443,7 +443,7 @@ func TestInvalidParseConf(t *testing.T) {
 		{
 			name: "TestInvalidConf",
 			test: func(t *testing.T) {
-				c := envvars.NewConfig(&FakeProvider{})
+				c := envvars.New(&FakeProvider{})
 
 				cp, _ := New(c)
 				pErr := cp.ParseConf(struct{}{})
@@ -455,7 +455,7 @@ func TestInvalidParseConf(t *testing.T) {
 		{
 			name: "TestInvalidField",
 			test: func(t *testing.T) {
-				c := envvars.NewConfig(&FakeProvider{})
+				c := envvars.New(&FakeProvider{})
 
 				cp, _ := New(c)
 				pErr := cp.ParseConf(&struct {

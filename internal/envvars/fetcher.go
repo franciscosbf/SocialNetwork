@@ -28,20 +28,22 @@ type Provider interface {
 	Get(key string) (string, error)
 }
 
-// Config wraps the process of getting
+// VarReader wraps the process of getting
 // variables with a given Provider
-type Config struct {
+type VarReader struct {
 	provider Provider
 }
 
-// NewConfig Creates a new config with a given provider
-func NewConfig(provider Provider) *Config {
-	return &Config{provider: provider}
+// New creates a new vars reader with a given provider
+func New(provider Provider) *VarReader {
+	return &VarReader{
+		provider: provider,
+	}
 }
 
 // Get returns a variable from the provider given its key
-func (c *Config) Get(key string) (string, error) {
-	value, err := c.provider.Get(key)
+func (vr *VarReader) Get(key string) (string, error) {
+	value, err := vr.provider.Get(key)
 	if err != nil {
 		return "", errorw.WrapErrorf(ErrorCodeVarFetch, err, "Couldn't get variable %v", key)
 	}

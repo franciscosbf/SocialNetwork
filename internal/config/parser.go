@@ -38,7 +38,7 @@ const (
 // ConfParser represents a client config that
 // fetches variables from a given reader
 type ConfParser struct {
-	reader *envvars.Config
+	reader *envvars.VarReader
 }
 
 // variableInfo contains all parsed info from a
@@ -304,7 +304,7 @@ func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 //
 //	// Defined variables: VAR_1=2, VAR_2=bark, VAR_3=1h30m
 //
-//	var varReader envvars.Config
+//	var varReader envvars.VarReader
 //	// varReader setup ...
 //
 //	s := &S{}
@@ -328,7 +328,7 @@ func (cp *ConfParser) ParseConf(from StructPtr) error {
 // New returns a new config parser with
 // a variables reader associated to it. Returns
 // MissingVariablesReader if varReader is nil
-func New(varReader *envvars.Config) (*ConfParser, error) {
+func New(varReader *envvars.VarReader) (*ConfParser, error) {
 	if varReader == nil {
 		return nil, MissingVariablesReader
 	}

@@ -27,6 +27,9 @@ const (
 	ErrorCodeMissingVar
 	ErrorCodeUnacceptedVal
 	ErrorCodeInvalidVarType
+	ErrorCodeConnFail
+	ErrorCodeVarReader
+	ErrorCodeClientConfigFail
 )
 
 // VarInfo represents the base getters
