@@ -32,7 +32,7 @@ const (
 )
 
 // dsnConn returns a dsn containing only connection elements
-func dsnConn(varsConf *config.PoolConfig) (dsn string) {
+func dsnConn(varsConf *config.PostgresConfig) (dsn string) {
 	dsn = fmt.Sprintf(
 		"user=%v password=%v host=%v dbname=%v",
 		varsConf.User, varsConf.Password, varsConf.Host, varsConf.Dbname)
@@ -49,7 +49,7 @@ func dsnConn(varsConf *config.PoolConfig) (dsn string) {
 }
 
 // populatePoolDefs sets up all pgxConf parameters if present in varsConf
-func populatePoolDefs(varsConf *config.PoolConfig, pgxConf *pgxpool.Config) {
+func populatePoolDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) {
 	utils.SetAny(varsConf.PoolMaxCons, &pgxConf.MaxConns)
 	utils.SetAny(varsConf.PoolMinCons, &pgxConf.MinConns)
 	utils.SetAny(varsConf.PoolMaxConnLifetime, &pgxConf.MaxConnLifetime)

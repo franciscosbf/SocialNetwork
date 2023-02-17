@@ -22,10 +22,10 @@ import (
 	"time"
 )
 
-// PoolConfig represents all elements to establish a
+// PostgresConfig represents all elements to establish a
 // connection pool, along with optional parameters
 // to control the pool behaviour
-type PoolConfig struct {
+type PostgresConfig struct {
 	// Connection related
 
 	User     string `name:"POSTGRES_USER_SECRET" required:"yes"`
@@ -45,9 +45,9 @@ type PoolConfig struct {
 	PoolMaxConnLifetimeJitter time.Duration `name:"POSTGRES_POOL_MAX_CONN_LIFETIME_JITTER"`
 }
 
-// New returns a new pool config
-func New(vReader *envvars.VarReader) (*PoolConfig, error) {
-	dsn := &PoolConfig{}
+// New returns a new postgres config
+func New(vReader *envvars.VarReader) (*PostgresConfig, error) {
+	dsn := &PostgresConfig{}
 
 	parser, _ := config.New(vReader)
 
