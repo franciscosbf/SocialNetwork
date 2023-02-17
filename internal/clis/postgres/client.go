@@ -62,7 +62,7 @@ func populatePgxDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) {
 func New(vReader *envvars.VarReader) (*pgxpool.Pool, error) {
 	if vReader == nil {
 		return nil, errorw.WrapErrorf(
-			clis.ErrorCodeMissingConfig, nil, "Postgres config is nil")
+			clis.ErrorCodeMissingConfig, nil, "Postgres variables config is nil")
 	}
 
 	varsConf, err := config.New(vReader)

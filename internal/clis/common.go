@@ -17,6 +17,8 @@ limitations under the License.
 package clis
 
 import (
+	"github.com/franciscosbf/micro-dwarf/internal/config"
+	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
 )
 
@@ -27,3 +29,10 @@ const (
 	ErrorCodeVarReader
 	ErrorCodeClientConfigFail
 )
+
+// ReadConfTemplate parses a given config struct
+func ReadConfTemplate(vReader *envvars.VarReader, conf config.StructPtr) error {
+	parser, _ := config.New(vReader)
+
+	return parser.ParseConf(conf)
+}

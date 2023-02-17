@@ -17,12 +17,12 @@ limitations under the License.
 package config
 
 import (
-	"github.com/franciscosbf/micro-dwarf/internal/config"
+	"github.com/franciscosbf/micro-dwarf/internal/clis"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"time"
 )
 
-// PostgresConfig represents all elements to establish a
+// PostgresConfig contains all elements to establish a
 // connection pool, along with optional parameters
 // to control the pool behaviour
 type PostgresConfig struct {
@@ -46,14 +46,9 @@ type PostgresConfig struct {
 }
 
 // New returns a new postgres config
-func New(vReader *envvars.VarReader) (*PostgresConfig, error) {
-	template := &PostgresConfig{}
+func New(vReader *envvars.VarReader) (template *PostgresConfig, err error) {
+	template = &PostgresConfig{}
+	err = clis.ReadConfTemplate(vReader, template)
 
-	parser, _ := config.New(vReader)
-
-	if err := parser.ParseConf(template); err != nil {
-		return nil, err
-	}
-
-	return template, nil
+	return
 }
