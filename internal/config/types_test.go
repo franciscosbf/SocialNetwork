@@ -18,6 +18,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"math"
 	"reflect"
 	"testing"
@@ -144,6 +145,49 @@ func TestInvalidBoolParsing(t *testing.T) {
 
 	v := reflect.ValueOf(&b).Elem()
 	if err := parseBoolType.converter(&v, "lol"); err == nil {
+		t.Error("Expecting getting an error")
+	}
+}
+
+func TestValidAddrsRefParsing(t *testing.T) {
+	var aP *utils.Addrs
+
+	v := reflect.ValueOf(&aP)
+	if err := parseAddrsRefType.converter(&v, "localhost:123;lo.com:999"); err != nil {
+		t.Errorf("Unexptected error %v", err)
+	}
+
+	if aP == nil {
+		t.Error("Nil addrs pointer")
+		return
+	}
+
+	if len(aP.Bucket) == 0 {
+		t.Error("Doesn't contain any addr")
+		return
+	}
+
+	if len(aP.Bucket) != 2 {
+		t.Errorf("Contains more than the expected: %v", aP.Bucket)
+		return
+	}
+
+	first := fmt.Sprintf("%v:%v", aP.Bucket[0].Host, aP.Bucket[0].Port)
+	if first != "localhost:123" {
+		t.Errorf("First position doesn't contain localhost:123, got %v", first)
+	}
+
+	second := fmt.Sprintf("%v:%v", aP.Bucket[1].Host, aP.Bucket[1].Port)
+	if second != "lo.com:999" {
+		t.Errorf("First position doesn't contain lo.com:999, got %v", second)
+	}
+}
+
+func TestInvalidAddrsRefParsing(t *testing.T) {
+	var aP *utils.Addrs
+
+	v := reflect.ValueOf(&aP).Elem()
+	if err := parseAddrsRefType.converter(&v, "lol"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
