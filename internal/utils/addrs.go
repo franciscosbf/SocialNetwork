@@ -58,7 +58,7 @@ func ParseAddrs(addrsList string) (*Addrs, error) {
 	addrsList = PolishString(addrsList)
 
 	if addrsList == "" || strings.HasPrefix(addrsList, ";") ||
-		strings.HasPrefix(addrsList, ";") {
+		strings.HasSuffix(addrsList, ";") {
 		return nil, InvalidAddrsListError
 	}
 
