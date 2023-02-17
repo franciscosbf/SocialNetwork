@@ -47,13 +47,13 @@ type PostgresConfig struct {
 
 // New returns a new postgres config
 func New(vReader *envvars.VarReader) (*PostgresConfig, error) {
-	dsn := &PostgresConfig{}
+	template := &PostgresConfig{}
 
 	parser, _ := config.New(vReader)
 
-	if err := parser.ParseConf(dsn); err != nil {
+	if err := parser.ParseConf(template); err != nil {
 		return nil, err
 	}
 
-	return dsn, nil
+	return template, nil
 }
