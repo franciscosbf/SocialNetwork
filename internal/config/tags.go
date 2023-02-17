@@ -45,7 +45,11 @@ func lookupKey(field *reflect.StructField, key string) (string, bool) {
 }
 
 // varNameRegex is used to validate variable's name
-var varNameRegex = regexp.MustCompile(`^[a-zA-Z]\w*$`)
+var varNameRegex *regexp.Regexp
+
+func init() {
+	varNameRegex = regexp.MustCompile(`^[a-zA-Z]\w*$`)
+}
 
 // parseTagKeyName fetches the variable name.
 // Returns MissingTagKeyError if it is missing
