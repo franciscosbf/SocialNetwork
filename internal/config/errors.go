@@ -36,7 +36,7 @@ type PrivateFieldError struct {
 
 func (e *PrivateFieldError) Error() string {
 	return fmt.Sprintf(
-		"Field %v is private. It's impossible to assign a value", e.fieldName)
+		"field %v is private. It's impossible to assign a value", e.fieldName)
 }
 
 // MissingTagKeyError represents a struct field
@@ -89,7 +89,7 @@ type RepeatedVarNameError struct {
 
 func (e *RepeatedVarNameError) Error() string {
 	return fmt.Sprintf(
-		"Variable %v was already assigned to struct field %v",
+		"variable %v was already assigned to struct field %v",
 		e.varName, e.assignedFieldName)
 }
 
