@@ -178,7 +178,7 @@ func TestValidTagKeyRequiredParsing(t *testing.T) {
 			name: "TestWithTrue",
 			test: func(t *testing.T) {
 				checkReturn(t, true, &struct {
-					I int `required:"    tRUe"`
+					I int `required:"    	tRUe\r\f"`
 				}{})
 			},
 		},
@@ -186,7 +186,7 @@ func TestValidTagKeyRequiredParsing(t *testing.T) {
 			name: "TestWithYes",
 			test: func(t *testing.T) {
 				checkReturn(t, true, &struct {
-					I int `required:"YeS"`
+					I int `required:"    \t\nYeS"`
 				}{})
 			},
 		},

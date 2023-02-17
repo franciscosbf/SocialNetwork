@@ -34,7 +34,7 @@ const (
 // polishString removes blank spaces from the
 // leading and trailing of a given string
 func polishString(s string) string {
-	return strings.Trim(s, " ")
+	return strings.Trim(s, " \t\n\v\f\r")
 }
 
 // lookupKey searches for the key in the tag of a given field
