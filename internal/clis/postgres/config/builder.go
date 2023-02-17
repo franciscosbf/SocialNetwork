@@ -51,8 +51,7 @@ func New(vReader *envvars.VarReader) (*PoolConfig, error) {
 
 	parser, _ := config.New(vReader)
 
-	err := parser.ParseConf(dsn)
-	if err != nil {
+	if err := parser.ParseConf(dsn); err != nil {
 		return nil, err
 	}
 
