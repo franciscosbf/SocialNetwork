@@ -139,8 +139,10 @@ func parseFieldTagKeys(
 	return
 }
 
-// validateKeywords checks if each one matches the field type by converting it with the
-// required parser. Returns TypeInconsistencyError if some value has a different type
+// validateKeywords checks if each one matches
+// the field type by converting it with the
+// required parser. Returns TypeInconsistencyError
+// if some value has a different type
 func validateKeywords(
 	fieldT reflect.Type,
 	parser typeConverter,
