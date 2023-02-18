@@ -103,7 +103,7 @@ func New(vReader *envvars.VarReader) (*redis.ClusterClient, error) {
 	ctx := context.Background()
 	if err := cli.ForEachShard(ctx, pingNode); err != nil {
 		return nil, errorw.WrapErrorf(
-			ErrorCodeNodeConnFail, err, "Failed connection check in a node")
+			ErrorCodeNodeConnFail, err, "Failed Redis connection check in a node")
 	}
 
 	return cli, nil
