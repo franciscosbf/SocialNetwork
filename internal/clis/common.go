@@ -24,7 +24,7 @@ import (
 
 // Error codes
 const (
-	ErrorCodeMissingConfig errorw.ErrorCode = iota
+	ErrorCodeMissingReader errorw.ErrorCode = iota
 	ErrorCodeConnFail
 	ErrorCodeVarReader
 	ErrorCodeClientConfigFail

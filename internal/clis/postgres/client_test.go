@@ -79,7 +79,7 @@ func TestInvalidConnection(t *testing.T) {
 			name: "TestMissingVarsReader",
 			test: func(t *testing.T) {
 				cli, err := New(nil)
-				checkErrorCode(t, cli, err, clis.ErrorCodeMissingConfig, "ErrorCodeMissingConfig")
+				checkErrorCode(t, cli, err, clis.ErrorCodeMissingReader, "ErrorCodeMissingReader")
 			},
 		},
 		{
