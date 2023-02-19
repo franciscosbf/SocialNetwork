@@ -152,7 +152,7 @@ func TestInvalidBoolParsing(t *testing.T) {
 func TestValidAddrsRefParsing(t *testing.T) {
 	var aP *utils.Addrs
 
-	v := reflect.ValueOf(&aP)
+	v := reflect.ValueOf(&aP).Elem()
 	if err := parseAddrsRefType.converter(&v, "localhost:123;lo.com:999"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}

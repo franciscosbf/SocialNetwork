@@ -149,7 +149,7 @@ func init() {
 		converter: func(vRep *reflect.Value, rawVal string) error {
 			val, err := utils.ParseAddrs(rawVal)
 			if err == nil {
-				vRep.Elem().Set(reflect.ValueOf(val))
+				vRep.Set(reflect.ValueOf(val))
 			}
 
 			return err
