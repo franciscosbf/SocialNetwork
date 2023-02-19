@@ -1,5 +1,5 @@
 global:
-  storageClass: "standard" # minikube default Storage Class
+  storageClass: "standard" # kind default Storage Class
 
 usePassword: true
 password: "password"
