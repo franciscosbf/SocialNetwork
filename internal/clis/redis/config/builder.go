@@ -41,7 +41,7 @@ type RedisConfig struct {
 	PoolSize           int           `name:"REDIS_POOL_SIZE"`
 	MinIdleConnections int           `name:"REDIS_MIN_IDLE_CONNECTIONS"`
 	MinRetryBackOff    time.Duration `name:"REDIS_MIN_RETRY_BACKOFF"`
-	MaxRetryBackOff    time.Duration `name:"REDIS_MIN_RETRY_BACKOFF"`
+	MaxRetryBackOff    time.Duration `name:"REDIS_MAX_RETRY_BACKOFF"`
 	DialTimeout        time.Duration `name:"REDIS_DIAL_TIMEOUT"`
 	ReadTimout         time.Duration `name:"REDIS_READ_TIMEOUT"`
 	WriteTimout        time.Duration `name:"REDIS_WRITE_TIMEOUT"`
