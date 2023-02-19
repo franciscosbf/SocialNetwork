@@ -38,7 +38,7 @@ type Addrs struct {
 
 // InvalidAddrsListError represents a bad formatted list of addresses
 var InvalidAddrsListError = errors.New(
-	"invalid format. expects host1:port1;host2:port2")
+	"invalid format. expects host1:port1,host2:port2")
 
 // DuplicatedAddrError represents
 // a repeated address
@@ -64,7 +64,7 @@ func (e *InvalidAddrError) Error() string {
 }
 
 // ParseAddrs parses a list of addresses with the format
-// host1:port1;host2:port2;(...). If the host is an ipv6,
+// host1:port1,host2:port2,(...). If the host is an ipv6,
 // then the address should have the following schema with
 // square brackets: [host]:port. Returns InvalidAddrsListError
 // if the format is invalid, DuplicatedAddrError if there's
@@ -73,8 +73,8 @@ func (e *InvalidAddrError) Error() string {
 func ParseAddrs(addrsList string) (*Addrs, error) {
 	addrsList = PolishString(addrsList)
 
-	if addrsList == "" || strings.HasPrefix(addrsList, ";") ||
-		strings.HasSuffix(addrsList, ";") {
+	if addrsList == "" || strings.HasPrefix(addrsList, ",") ||
+		strings.HasSuffix(addrsList, ",") {
 		return nil, InvalidAddrsListError
 	}
 
@@ -83,7 +83,7 @@ func ParseAddrs(addrsList string) (*Addrs, error) {
 
 	var addrs []*Address
 
-	for _, rawAddr := range strings.Split(addrsList, ";") {
+	for _, rawAddr := range strings.Split(addrsList, ",") {
 		rawAddr = PolishString(rawAddr)
 
 		if rawAddr == "" {

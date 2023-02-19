@@ -22,7 +22,7 @@ import (
 )
 
 func TestValidAddrsList(t *testing.T) {
-	addrs, err := ParseAddrs("		\tlocalhost:123		\n\r;  127.0.0.1:123  ")
+	addrs, err := ParseAddrs("		\tlocalhost:123		\n\r,  127.0.0.1:123  ")
 
 	if err != nil {
 		t.Errorf("Unexpected error %v", err)
@@ -58,7 +58,7 @@ func TestInvalidAddrsList(t *testing.T) {
 		{
 			name: "TestBadFmtPrefix",
 			test: func(t *testing.T) {
-				addrs, err := ParseAddrs(";localhost:123;127.0.0.1:123")
+				addrs, err := ParseAddrs(",localhost:123,127.0.0.1:123")
 
 				if err != InvalidAddrsListError {
 					t.Errorf("Unexpected error %v", err)
@@ -74,7 +74,7 @@ func TestInvalidAddrsList(t *testing.T) {
 		{
 			name: "TestBadFmtSuffix",
 			test: func(t *testing.T) {
-				addrs, err := ParseAddrs("localhost:123;127.0.0.1:123;")
+				addrs, err := ParseAddrs("localhost:123,127.0.0.1:123,")
 
 				if err != InvalidAddrsListError {
 					t.Errorf("Unexpected error %v", err)
@@ -90,7 +90,7 @@ func TestInvalidAddrsList(t *testing.T) {
 		{
 			name: "TestBadAddrFmt",
 			test: func(t *testing.T) {
-				addrs, err := ParseAddrs("localhost:123;  \n  \t		;127.0.0.1:123")
+				addrs, err := ParseAddrs("localhost:123,  \n  \t		,127.0.0.1:123")
 
 				if err != InvalidAddrsListError {
 					t.Errorf("Unexpected error %v", err)
@@ -106,7 +106,7 @@ func TestInvalidAddrsList(t *testing.T) {
 		{
 			name: "TestWithDuplicatedAddr",
 			test: func(t *testing.T) {
-				addrs, err := ParseAddrs("localhost:123;127.0.0.1:123;127.0.0.1:123")
+				addrs, err := ParseAddrs("localhost:123,127.0.0.1:123,127.0.0.1:123")
 
 				if _, ok := err.(*DuplicatedAddrError); !ok {
 					t.Errorf("Unexpected error %v", err)
@@ -122,7 +122,7 @@ func TestInvalidAddrsList(t *testing.T) {
 		{
 			name: "TestWithInvalidAddr",
 			test: func(t *testing.T) {
-				addrs, err := ParseAddrs("[:123;127.0.0.1:123")
+				addrs, err := ParseAddrs("[:123,127.0.0.1:123")
 
 				if _, ok := err.(*InvalidAddrError); !ok {
 					t.Errorf("Unexpected error %v", err)
