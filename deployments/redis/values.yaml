@@ -4,11 +4,8 @@ global:
 usePassword: true
 password: "password"
 
-service:
-  type: LoadBalancer
-
 persistence:
-  enabled: false
+  size: 1Gi
 
 redis:
   startupProbe:
