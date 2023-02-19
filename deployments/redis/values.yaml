@@ -1,26 +1,20 @@
 global:
   storageClass: "standard" # minikube default Storage Class
 
-architecture: "replication"
+usePassword: true
+password: "password"
 
-auth:
-  password: "password"
+service:
+  type: LoadBalancer
 
-master:
-  persistence:
-    size: 1Gi
+persistence:
+  enabled: false
 
-replica:
-  replicaCount: 2
-  livenessProbe:
+redis:
+  startupProbe:
     initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 10
-  readinessProbe:
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 10
-  persistence:
-    size: 1Gi
+    enabled: true
+
+cluster:
+  nodes: 6
+  replicas: 1
