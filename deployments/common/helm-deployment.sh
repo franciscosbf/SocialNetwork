@@ -81,4 +81,4 @@ kubectl apply -f $NAMESPACE_FILE
 
 # Installs the release
 print "installing as $RELEASE_NAME"
-helm install $RELEASE_NAME -n $NAMESPACE -f $VALUES_FILE $REPO_NAME/redis
+helm install $RELEASE_NAME -n $NAMESPACE -f $VALUES_FILE $REPO_NAME/$RELEASE_NAME
