@@ -43,6 +43,7 @@ check_variables \
   REPO_NAME \
   REPO_URL \
   RELEASE_NAME \
+  CHART_NAME \
   VALUES_FILE \
   NAMESPACE_FILE
 
@@ -79,6 +80,8 @@ NAMESPACE=$HAS_LABEL
 # Applies required namespace
 kubectl apply -f $NAMESPACE_FILE
 
+URL="$REPO_NAME/$CHART_NAME"
+
 # Installs the release
-print "installing as $RELEASE_NAME"
-helm install $RELEASE_NAME -n $NAMESPACE -f $VALUES_FILE $REPO_NAME/$RELEASE_NAME
+print "installing $URL as $RELEASE_NAME"
+helm install $RELEASE_NAME -n $NAMESPACE -f $VALUES_FILE $URL
