@@ -45,9 +45,12 @@ func TestValidConnection(t *testing.T) {
 	envProvider := providers.NewEnvVariables()
 	reader := envvars.New(envProvider)
 
-	if cli, err := New(reader); err != nil {
+	cli, err := New(reader)
+	if err != nil {
 		t.Errorf("Unexpect error: %v", err)
-	} else if cli == nil {
+	}
+
+	if cli == nil {
 		t.Errorf("Client should not be nil")
 	} else {
 		cli.Close()
