@@ -46,9 +46,6 @@ type RedisConfig struct {
 	ReadTimout         time.Duration `name:"REDIS_READ_TIMEOUT"`
 	WriteTimout        time.Duration `name:"REDIS_WRITE_TIMEOUT"`
 	PoolTimeout        time.Duration `name:"REDIS_POOL_TIMEOUT"`
-	IdleTimeout        time.Duration `name:"REDIS_IDLE_TIMEOUT"`
-	MaxConnAge         time.Duration `name:"REDIS_MAX_CONN_AGE"`
-	IdleCheckFrequency time.Duration `name:"REDIS_IDLE_CHECK_FREQUENCY"`
 }
 
 // New returns a new redis config

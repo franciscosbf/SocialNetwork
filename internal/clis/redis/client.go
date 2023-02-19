@@ -23,7 +23,7 @@ import (
 	"github.com/franciscosbf/micro-dwarf/internal/clis/redis/config"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 // Error codes
@@ -38,23 +38,20 @@ func createClusterConf(varsConf *config.RedisConfig) *redis.ClusterOptions {
 		// Fields that receive a value by default, regardless
 		// the corresponding variable is defined or not
 
-		Username:           varsConf.Username,
-		Password:           varsConf.Password,
-		ReadOnly:           varsConf.ReadOnly,
-		PoolFIFO:           varsConf.PoolFifo,
-		MaxRedirects:       varsConf.MaxRedirects,
-		MaxRetries:         varsConf.MaxRetries,
-		PoolSize:           varsConf.PoolSize,
-		MinIdleConns:       varsConf.MinIdleConnections,
-		MinRetryBackoff:    varsConf.MinRetryBackOff,
-		MaxRetryBackoff:    varsConf.MaxRetryBackOff,
-		DialTimeout:        varsConf.DialTimeout,
-		ReadTimeout:        varsConf.ReadTimout,
-		WriteTimeout:       varsConf.WriteTimout,
-		PoolTimeout:        varsConf.PoolTimeout,
-		IdleTimeout:        varsConf.IdleTimeout,
-		MaxConnAge:         varsConf.MaxConnAge,
-		IdleCheckFrequency: varsConf.IdleCheckFrequency,
+		Username:        varsConf.Username,
+		Password:        varsConf.Password,
+		ReadOnly:        varsConf.ReadOnly,
+		PoolFIFO:        varsConf.PoolFifo,
+		MaxRedirects:    varsConf.MaxRedirects,
+		MaxRetries:      varsConf.MaxRetries,
+		PoolSize:        varsConf.PoolSize,
+		MinIdleConns:    varsConf.MinIdleConnections,
+		MinRetryBackoff: varsConf.MinRetryBackOff,
+		MaxRetryBackoff: varsConf.MaxRetryBackOff,
+		DialTimeout:     varsConf.DialTimeout,
+		ReadTimeout:     varsConf.ReadTimout,
+		WriteTimeout:    varsConf.WriteTimout,
+		PoolTimeout:     varsConf.PoolTimeout,
 	}
 
 	// Add node addresses
