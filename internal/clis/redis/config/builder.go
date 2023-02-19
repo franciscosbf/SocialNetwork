@@ -29,7 +29,7 @@ type RedisConfig struct {
 
 	Addrs    *utils.Addrs `name:"REDIS_ADDRESSES" required:"yes"` // see utils.ParseAddrs
 	Username string       `name:"REDIS_USERNAME_SECRET"`
-	Password string       `name:"REDIS_PASSWORD_SECRET" required:"yes"`
+	Password string       `name:"REDIS_PASSWORD_SECRET"`
 
 	// Connection and pool configurations
 
