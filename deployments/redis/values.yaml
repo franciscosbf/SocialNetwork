@@ -1,5 +1,5 @@
 global:
-  storageClass: "standard" # kind default Storage Class
+  storageClass: "standard" # kind's default Storage Class
 
 usePassword: true
 password: "password"
