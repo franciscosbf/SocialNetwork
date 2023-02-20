@@ -27,7 +27,7 @@ import (
 type RedisConfig struct {
 	// Connection related
 
-	Addrs    *utils.Addrs `name:"REDIS_ADDRESSES" required:"yes"` // see utils.ParseAddrs
+	Addrs    *utils.Addrs `name:"REDIS_ADDRS" required:"yes"` // see utils.ParseAddrs
 	Username string       `name:"REDIS_USERNAME_SECRET"`
 	Password string       `name:"REDIS_PASSWORD_SECRET"`
 
