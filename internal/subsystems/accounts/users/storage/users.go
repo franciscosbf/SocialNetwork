@@ -160,7 +160,7 @@ type Users struct {
 	repository UsersRepository
 }
 
-// NewUsers Creates a new users aggregator
-func NewUsers(store UsersStore, repository UsersRepository) *Users {
+// New creates a new users aggregator
+func New(store UsersStore, repository UsersRepository) *Users {
 	return &Users{store: store, repository: repository}
 }
