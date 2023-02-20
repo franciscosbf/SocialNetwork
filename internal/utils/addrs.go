@@ -26,7 +26,11 @@ import (
 // Address contains
 // its host and port
 type Address struct {
+	// Host may contain the host name
+	// or the ip. This field can be
+	// empty, if it wasn't specified
 	Host string
+	// Port is always present
 	Port string
 }
 
@@ -69,7 +73,9 @@ func (e *InvalidAddrError) Error() string {
 // square brackets: [host]:port. Returns InvalidAddrsListError
 // if the format is invalid, DuplicatedAddrError if there's
 // a defined address more than once and InvalidAddrError if
-// an address doesn't match the format host:port
+// an address doesn't match the format host:port. Keep in mind
+// that this doesn't check if the port is valid or the host ip
+// has a valid address
 func ParseAddrs(addrsList string) (*Addrs, error) {
 	addrsList = PolishString(addrsList)
 
