@@ -16,12 +16,102 @@ limitations under the License.
 
 package redis
 
-import "testing"
+import (
+	"github.com/franciscosbf/micro-dwarf/internal/clis"
+	"github.com/franciscosbf/micro-dwarf/internal/envvars"
+	"github.com/franciscosbf/micro-dwarf/internal/envvars/providers"
+	"github.com/franciscosbf/micro-dwarf/internal/errorw"
+	"github.com/redis/go-redis/v9"
+	"os"
+	"strings"
+	"testing"
+)
+
+func unsetVars() {
+	for _, v := range os.Environ() {
+		if strings.HasPrefix(v, "REDIS_") {
+			_ = os.Unsetenv(v)
+		}
+	}
+}
+
+func setVar(key, value string) {
+	_ = os.Setenv(key, value)
+}
 
 func TestValidConnection(t *testing.T) {
-	// TODO
+	defer unsetVars()
+
+	envProvider := providers.NewEnvVariables()
+	reader := envvars.New(envProvider)
+
+	cli, err := New(reader)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	if cli == nil {
+		t.Errorf("Unexpect nil client")
+	}
 }
 
 func TestInvalidConnection(t *testing.T) {
-	// TODO
+	checkErrorCode := func(t *testing.T, cli *redis.ClusterClient, err error, code errorw.ErrorCode, errorName string) {
+		errw, ok := err.(*errorw.Wrapper)
+		if !ok {
+			t.Errorf("Expecting errorw.Wrapper, got %v", err)
+			return
+		}
+
+		if errw.Code() != code {
+			t.Errorf("Expecting error code %v, got: %v", errorName, errw.String())
+		}
+
+		if cli != nil {
+			t.Errorf("Client should be nil, got %v", cli)
+		}
+	}
+
+	testBattery := []struct {
+		name string
+		test func(t *testing.T)
+	}{
+		{
+			name: "TestMissingVarsReader",
+			test: func(t *testing.T) {
+				cli, err := New(nil)
+				checkErrorCode(t, cli, err, clis.ErrorCodeMissingReader, "ErrorCodeMissingReader")
+			},
+		},
+		{
+			name: "TestMissingVarsReader",
+			test: func(t *testing.T) {
+				defer unsetVars()
+
+				envProvider := providers.NewEnvVariables()
+				reader := envvars.New(envProvider)
+
+				cli, err := New(reader)
+				checkErrorCode(t, cli, err, clis.ErrorCodeVarReader, "ErrorCodeVarReader")
+			},
+		},
+		{
+			name: "TestClusterConnFailure",
+			test: func(t *testing.T) {
+				defer unsetVars()
+
+				setVar("REDIS_ADDRS", "127.255.254.123:1234")
+
+				envProvider := providers.NewEnvVariables()
+				reader := envvars.New(envProvider)
+
+				cli, err := New(reader)
+				checkErrorCode(t, cli, err, ErrorCodeNodeConnFail, "ErrorCodeNodeConnFail")
+			},
+		},
+	}
+
+	for _, pair := range testBattery {
+		t.Run(pair.name, pair.test)
+	}
 }
