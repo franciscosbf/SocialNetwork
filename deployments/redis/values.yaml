@@ -9,7 +9,6 @@ persistence:
 
 redis:
   startupProbe:
-    initialDelaySeconds: 60
     enabled: true
 
 cluster:
