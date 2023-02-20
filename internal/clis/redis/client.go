@@ -58,6 +58,8 @@ func createClusterConf(varsConf *config.RedisConfig) *redis.ClusterOptions {
 	// Add node addresses
 	aBucket := varsConf.Addrs.Bucket
 	for _, addr := range aBucket {
+		// It's guaranteed that the
+		// host is always present
 		formatted := fmt.Sprintf(
 			"%v:%v", addr.Host, addr.Port)
 
