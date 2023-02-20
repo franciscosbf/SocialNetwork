@@ -40,7 +40,7 @@ func createClusterConf(varsConf *config.RedisConfig) *redis.ClusterOptions {
 
 		Username:              varsConf.Username,
 		Password:              varsConf.Password,
-		ReadOnly:              varsConf.ReadOnly,
+		ReadOnly:              varsConf.ReadOnlySlaves,
 		PoolFIFO:              varsConf.PoolFifo,
 		ContextTimeoutEnabled: varsConf.ContextTimeoutEnabled,
 		MaxRedirects:          varsConf.MaxRedirects,

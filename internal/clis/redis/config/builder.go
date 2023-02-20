@@ -34,7 +34,7 @@ type RedisConfig struct {
 	// Connection and pool configurations
 
 	RouteMode             string        `name:"REDIS_ROUTE_MODE" accepts:"latency,randomly"`
-	ReadOnly              bool          `name:"REDIS_READ_ONY"`
+	ReadOnlySlaves        bool          `name:"REDIS_READ_ONY_SLAVES"`
 	PoolFifo              bool          `name:"REDIS_POOL_FIFO"`
 	ContextTimeoutEnabled bool          `name:"REDIS_CONTEXT_TIMEOUT_ENABLED"`
 	MaxRedirects          int           `name:"REDIS_MAX_REDIRECTS"`
