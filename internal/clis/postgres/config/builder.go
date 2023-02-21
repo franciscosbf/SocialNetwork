@@ -17,7 +17,7 @@ limitations under the License.
 package config
 
 import (
-	"github.com/franciscosbf/micro-dwarf/internal/clis/conftemplate"
+	"github.com/franciscosbf/micro-dwarf/internal/conftemplate"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"time"
 )
