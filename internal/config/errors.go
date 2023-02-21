@@ -36,7 +36,7 @@ type PrivateFieldError struct {
 
 func (e *PrivateFieldError) Error() string {
 	return fmt.Sprintf(
-		"field %v is private. It's impossible to assign a value", e.fieldName)
+		"field %v is private, it's impossible to assign a value", e.fieldName)
 }
 
 // MissingTagKeyError represents a struct field
