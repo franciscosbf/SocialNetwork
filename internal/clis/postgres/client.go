@@ -79,8 +79,6 @@ func New(vReader *envvars.VarReader) (*pgxpool.Pool, error) {
 			clis.ErrorCodeClientConfigFail, err, "Invalid Postgres config")
 	}
 
-	fmt.Println(pgxConf.ConnConfig.ConnString())
-
 	populatePgxDefs(varsConf, pgxConf)
 
 	pool, err := pgxpool.ConnectConfig(context.Background(), pgxConf)
