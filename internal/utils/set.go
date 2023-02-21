@@ -63,6 +63,8 @@ func (s *Set[V]) Size() int {
 	return len(s.m)
 }
 
+// Empty returns true if
+// set is empty
 func (s *Set[V]) Empty() bool {
 	return s.Size() == 0
 }
