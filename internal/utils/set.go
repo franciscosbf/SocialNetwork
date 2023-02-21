@@ -69,6 +69,12 @@ func (s *Set[V]) Empty() bool {
 	return s.Size() == 0
 }
 
+// Delete removes a value
+// if present
+func (s *Set[V]) Delete(value V) {
+	delete(s.m, value)
+}
+
 // NewSet returns a new set
 func NewSet[V comparable]() *Set[V] {
 	bucket := make(map[V]struct{})

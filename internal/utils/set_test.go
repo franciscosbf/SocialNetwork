@@ -112,3 +112,17 @@ func TestEmptySet(t *testing.T) {
 		t.Errorf("Empty call should have returned false on set with one element")
 	}
 }
+
+func TestSetDelete(t *testing.T) {
+	s := NewSet[string]()
+
+	s.Put("a")
+	s.Put("b")
+
+	s.Delete("a")
+	s.Delete("b")
+
+	if !s.Empty() {
+		t.Errorf("Expecting empty set, contains %v", s.Values())
+	}
+}
