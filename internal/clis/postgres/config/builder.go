@@ -17,7 +17,7 @@ limitations under the License.
 package config
 
 import (
-	"github.com/franciscosbf/micro-dwarf/internal/clis"
+	"github.com/franciscosbf/micro-dwarf/internal/clis/conftemplate"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"time"
 )
@@ -48,7 +48,7 @@ type PostgresConfig struct {
 // New returns a new postgres config
 func New(vReader *envvars.VarReader) (template *PostgresConfig, err error) {
 	template = &PostgresConfig{}
-	err = clis.ReadConfTemplate(vReader, template)
+	err = conftemplate.Read(vReader, template)
 
 	return
 }
