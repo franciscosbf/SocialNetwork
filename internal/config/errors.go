@@ -39,6 +39,17 @@ func (e *PrivateFieldError) Error() string {
 		"field %v is private, it's impossible to assign a value", e.fieldName)
 }
 
+// AnonymousFieldError represents a field
+// that is anonymous (without name)
+type AnonymousFieldError struct {
+	fieldName string
+}
+
+func (e *AnonymousFieldError) Error() string {
+	return fmt.Sprintf(
+		"field %v is anonymous", e.fieldName)
+}
+
 // MissingTagKeyError represents a struct field
 // with a given missing key in its tag
 type MissingTagKeyError struct {

@@ -102,9 +102,11 @@ func TestValidTypeConverter(t *testing.T) {
 	var fChecks []*fieldCheck
 
 	for i := 0; i < sT.NumField(); i++ {
-		v := &variableInfo{}
 
 		f := sT.Field(i)
+		fValue := sV.Field(i)
+
+		v := &variableInfo{val: &fValue}
 
 		if err := selectTypeConverter(v, &f); err != nil {
 			t.Errorf("Unnexpected getting error in field %v: %v", f.Name, err)
@@ -112,8 +114,6 @@ func TestValidTypeConverter(t *testing.T) {
 		if v.setValue == nil {
 			t.Errorf("Expecting converter defined for field %v", f.Name)
 		}
-
-		fValue := sV.Field(i)
 
 		fChecks = append(fChecks, &fieldCheck{v.setValue, &fValue, &f, f.Tag.Get("v")})
 	}
@@ -151,7 +151,9 @@ func TestInvalidTypeConverter(t *testing.T) {
 	sT := reflect.TypeOf(s).Elem()
 	f := sT.Field(0)
 
-	v := &variableInfo{}
+	fV := reflect.ValueOf(s).Elem().Field(0)
+
+	v := &variableInfo{val: &fV}
 
 	err := selectTypeConverter(v, &f)
 	if _, ok := err.(*UnsupportedTypeError); !ok {
@@ -180,8 +182,8 @@ func TestValidTagParser(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if v.varName != "hello" {
-		t.Errorf("Expecting variable name hello, got: %v", v.varName)
+	if v.name != "hello" {
+		t.Errorf("Expecting variable name hello, got: %v", v.name)
 	}
 
 	if !v.required {
@@ -271,7 +273,7 @@ func TestInvalidAccepts(t *testing.T) {
 	accepts.Put("1")
 	accepts.Put("str")
 
-	err := validateKeywords(ft, parseIntegerType.converter, accepts)
+	err := validateAccepted(ft, parseInt, accepts)
 	if _, ok := err.(*TypeInconsistencyError); !ok {
 		t.Errorf("Expecting getting error TypeInconsistencyError, got %v", err)
 	}
@@ -295,8 +297,8 @@ func TestValidParseFields(t *testing.T) {
 	}
 
 	checkVar := func(v *variableInfo, name string, required bool, accepts ...string) {
-		if name != v.varName {
-			t.Errorf("Invalid variable name %v. Was expecting %v", v.varName, name)
+		if name != v.name {
+			t.Errorf("Invalid variable name %v. Was expecting %v", v.name, name)
 			return
 		}
 
@@ -329,6 +331,20 @@ func TestInvalidParseFields(t *testing.T) {
 				vs, err := parseFields(&st)
 				if err != WithoutFieldsError {
 					t.Errorf("Expecting error WithoutFieldsError, got: %v", err)
+				}
+
+				if vs != nil {
+					t.Errorf("Expecting nil slice, got: %v", vs)
+				}
+			},
+		},
+		{
+			name: "TestAnonymousField",
+			test: func(t *testing.T) {
+				st := reflect.ValueOf(&struct{ int }{}).Elem()
+				vs, err := parseFields(&st)
+				if err, ok := err.(*AnonymousFieldError); !ok {
+					t.Errorf("Expecting error AnonymousFieldError, got: %v", err)
 				}
 
 				if vs != nil {

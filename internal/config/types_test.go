@@ -29,7 +29,7 @@ func TestValidStringParsing(t *testing.T) {
 	var s string
 
 	v := reflect.ValueOf(&s).Elem()
-	if err := parseStringType.converter(&v, "hello"); err != nil {
+	if err := parseString(&v, "hello"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -42,7 +42,7 @@ func TestValidIntegerParsing(t *testing.T) {
 	var i int
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseIntegerType.converter(&v, "212"); err != nil {
+	if err := parseInt(&v, "212"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -55,7 +55,7 @@ func TestInvalidIntegerParsing(t *testing.T) {
 	var i int
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseIntegerType.converter(&v, "212s"); err == nil {
+	if err := parseInt(&v, "212s"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
@@ -64,7 +64,7 @@ func TestValidInteger32Parsing(t *testing.T) {
 	var i int32
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseInteger32Type.converter(&v, fmt.Sprintf("%v", math.MaxInt32)); err != nil {
+	if err := parseInt32(&v, fmt.Sprintf("%v", math.MaxInt32)); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -77,7 +77,7 @@ func TestInvalidInteger32Parsing(t *testing.T) {
 	var i int32
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseInteger32Type.converter(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
+	if err := parseInt32(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
@@ -86,7 +86,7 @@ func TestValidUnsignedInteger16Parsing(t *testing.T) {
 	var i uint16
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseUnsignedInteger16Type.converter(&v, fmt.Sprintf("%v", math.MaxUint16)); err != nil {
+	if err := parseUnsignedInt16(&v, fmt.Sprintf("%v", math.MaxUint16)); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -99,7 +99,7 @@ func TestInvalidUnsignedInteger16Parsing(t *testing.T) {
 	var i uint16
 
 	v := reflect.ValueOf(&i).Elem()
-	if err := parseUnsignedInteger16Type.converter(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
+	if err := parseUnsignedInt16(&v, fmt.Sprintf("%v", math.MaxInt)); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
@@ -108,7 +108,7 @@ func TestValidDurationParsing(t *testing.T) {
 	var d time.Duration
 
 	v := reflect.ValueOf(&d).Elem()
-	if err := parseDurationType.converter(&v, "1h3m"); err != nil {
+	if err := parseDuration(&v, "1h3m"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -122,7 +122,7 @@ func TestInvalidDurationParsing(t *testing.T) {
 	var d time.Duration
 
 	v := reflect.ValueOf(&d).Elem()
-	if err := parseDurationType.converter(&v, "1h2mm"); err == nil {
+	if err := parseDuration(&v, "1h2mm"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
@@ -131,7 +131,7 @@ func TestValidBoolParsing(t *testing.T) {
 	var b bool
 
 	v := reflect.ValueOf(&b).Elem()
-	if err := parseBoolType.converter(&v, "true"); err != nil {
+	if err := parseBool(&v, "true"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -144,7 +144,7 @@ func TestInvalidBoolParsing(t *testing.T) {
 	var b bool
 
 	v := reflect.ValueOf(&b).Elem()
-	if err := parseBoolType.converter(&v, "lol"); err == nil {
+	if err := parseBool(&v, "lol"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }
@@ -153,7 +153,7 @@ func TestValidAddrsRefParsing(t *testing.T) {
 	var aP *utils.Addrs
 
 	v := reflect.ValueOf(&aP).Elem()
-	if err := parseAddrsRefType.converter(&v, "localhost:123;lo.com:999"); err != nil {
+	if err := parseAddrsRef(&v, "localhost:123,lo.com:999"); err != nil {
 		t.Errorf("Unexptected error %v", err)
 	}
 
@@ -187,7 +187,7 @@ func TestInvalidAddrsRefParsing(t *testing.T) {
 	var aP *utils.Addrs
 
 	v := reflect.ValueOf(&aP).Elem()
-	if err := parseAddrsRefType.converter(&v, "lol"); err == nil {
+	if err := parseAddrsRef(&v, "lol"); err == nil {
 		t.Error("Expecting getting an error")
 	}
 }

@@ -44,7 +44,7 @@ type ConfParser struct {
 // variableInfo contains all parsed info from a
 // struct field. It's used to evaluate a variable
 type variableInfo struct {
-	varName        string
+	name           string
 	required       bool
 	acceptedValues *utils.Set[string]
 	val            *reflect.Value
@@ -88,15 +88,14 @@ func isAssignable(field *reflect.Value) bool {
 
 // selectTypeConverter searches in the types converter repository if someone
 // matches the field type. If not, then means that is an unsupported type,
-// returning an error
+// returning an error. Assumes that the field value representation was already
+// assigned to v
 func selectTypeConverter(v *variableInfo, field *reflect.StructField) error {
 	// Searches for the corresponding converter
-	for _, pair := range typeConverters {
-		if field.Type.AssignableTo(pair.typeRep) {
-			v.setValue = pair.converter
+	if converter := selectConverter(v.val); converter != nil {
+		v.setValue = converter
 
-			return nil
-		}
+		return nil
 	}
 
 	return &UnsupportedTypeError{
@@ -115,35 +114,33 @@ func parseFieldTagKeys(
 	field *reflect.StructField,
 	parsedNames map[string]string,
 ) (err error) {
-	if v.varName, err = parseTagKeyName(field); err != nil {
+	if v.name, err = parseTagKeyName(field); err != nil {
 		return
 	}
 
-	if assignedField, ok := parsedNames[v.varName]; ok {
+	if assignedField, ok := parsedNames[v.name]; ok {
 		return &RepeatedVarNameError{
 			assignedFieldName: assignedField,
-			varName:           v.varName,
+			varName:           v.name,
 		}
 	}
 	// Otherwise, caches it
-	parsedNames[v.varName] = field.Name
+	parsedNames[v.name] = field.Name
 
 	if v.required, err = parseTagKeyRequired(field); err != nil {
 		return
 	}
 
-	if v.acceptedValues, err = parseTagKeyAccepts(field); err != nil {
-		return
-	}
+	v.acceptedValues, err = parseTagKeyAccepts(field)
 
 	return
 }
 
-// validateKeywords checks if each one matches
+// validateAccepted checks if each one matches
 // the field type by converting it with the
 // required parser. Returns TypeInconsistencyError
 // if some value has a different type
-func validateKeywords(
+func validateAccepted(
 	fieldT reflect.Type,
 	parser typeConverter,
 	accepts *utils.Set[string],
@@ -168,8 +165,8 @@ func validateKeywords(
 // and tag elements. Returns a slice containing info of all struct
 // variables. Upon some error while evaluating a field, it's returned
 // immediately after have received it. Errors from this function (not
-// the ones that might be returned from other calls) are WithoutFieldsError
-// and PrivateFieldError.
+// the ones that might be returned from other calls) are WithoutFieldsError,
+// PrivateFieldError and AnonymousFieldError.
 func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 	sType := strInfo.Type()
 	fieldsNum := strInfo.NumField()
@@ -188,13 +185,22 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		fieldV := strInfo.Field(i)
 		fieldSt := sType.Field(i)
 
+		if fieldSt.Anonymous {
+			return nil, &AnonymousFieldError{
+				fieldName: fieldSt.Name,
+			}
+		}
+
 		if !isAssignable(&fieldV) {
 			return nil, &PrivateFieldError{fieldName: fieldSt.Name}
 		}
 
 		newVar := &variableInfo{}
 
-		// Set elements according to Type representation
+		// Set value representation
+		newVar.val = &fieldV
+
+		// Set elements according to type representation
 		if err := selectTypeConverter(newVar, &fieldSt); err != nil {
 			return nil, err
 		}
@@ -205,12 +211,9 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 		fieldT := fieldSt.Type
 		converter := newVar.setValue
 		keywords := newVar.acceptedValues
-		if err := validateKeywords(fieldT, converter, keywords); err != nil {
+		if err := validateAccepted(fieldT, converter, keywords); err != nil {
 			return nil, err
 		}
-
-		// Set value representation
-		newVar.val = &fieldV
 
 		fields = append(fields, newVar)
 	}
@@ -223,7 +226,7 @@ func parseFields(strInfo *reflect.Value) ([]*variableInfo, error) {
 // Lastly, tries to parse the raw value and set it into the field
 func (cp *ConfParser) fillFields(vars []*variableInfo) error {
 	for _, v := range vars {
-		vName := v.varName
+		vName := v.name
 
 		rawVal, err := cp.reader.Get(vName)
 		if err != nil {
