@@ -29,8 +29,9 @@ import (
 
 func unsetVars() {
 	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "REDIS_") {
-			_ = os.Unsetenv(v)
+		key := strings.Split(v, "=")[0]
+		if strings.HasPrefix(key, "REDIS_") {
+			_ = os.Unsetenv(key)
 		}
 	}
 }
@@ -39,7 +40,7 @@ func setVar(key, value string) {
 	_ = os.Setenv(key, value)
 }
 
-func TestValidConnection(t *testing.T) {
+func checkConn(t *testing.T) {
 	defer unsetVars()
 
 	envProvider := providers.NewEnvVariables()
@@ -53,6 +54,16 @@ func TestValidConnection(t *testing.T) {
 	if cli == nil {
 		t.Errorf("Unexpect nil client")
 	}
+}
+
+func TestValidConnection(t *testing.T) {
+	checkConn(t)
+}
+
+func TestValidSecureConnection(t *testing.T) {
+	setVar("REDIS_TLS", "true")
+
+	checkConn(t)
 }
 
 func TestInvalidConnection(t *testing.T) {
@@ -93,6 +104,21 @@ func TestInvalidConnection(t *testing.T) {
 
 				cli, err := New(reader)
 				checkErrorCode(t, cli, err, clis.ErrorCodeVarReader, "ErrorCodeVarReader")
+			},
+		},
+		{
+			name: "TestInvalidTls",
+			test: func(t *testing.T) {
+				defer unsetVars()
+
+				setVar("REDIS_ADDRS", "127.255.254.123:1234")
+				setVar("REDIS_TLS", "true")
+
+				envProvider := providers.NewEnvVariables()
+				reader := envvars.New(envProvider)
+
+				cli, err := New(reader)
+				checkErrorCode(t, cli, err, clis.ErrorCodeClientConfigFail, "ErrorCodeClientConfigFail")
 			},
 		},
 		{

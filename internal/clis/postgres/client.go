@@ -23,12 +23,14 @@ import (
 	"github.com/franciscosbf/micro-dwarf/internal/clis/postgres/config"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
+	"github.com/franciscosbf/micro-dwarf/internal/secure"
 	"github.com/franciscosbf/micro-dwarf/internal/utils"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 const (
 	ErrorCodeQueryCheckFail errorw.ErrorCode = iota
+	ErrorCodeClientDsnFail
 )
 
 // dsnConn returns a dsn containing only connection elements
@@ -49,13 +51,21 @@ func dsnConn(varsConf *config.PostgresConfig) (dsn string) {
 }
 
 // populatePgxDefs sets up all pgxConf parameters if present in varsConf
-func populatePgxDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) {
+func populatePgxDefs(varsConf *config.PostgresConfig, pgxConf *pgxpool.Config) (err error) {
 	utils.SetAny(varsConf.PoolMaxCons, &pgxConf.MaxConns)
 	utils.SetAny(varsConf.PoolMinCons, &pgxConf.MinConns)
 	utils.SetAny(varsConf.PoolMaxConnLifetime, &pgxConf.MaxConnLifetime)
 	utils.SetAny(varsConf.PoolMaxConnIdleTime, &pgxConf.MaxConnIdleTime)
 	utils.SetAny(varsConf.PoolHealthCheckPeriod, &pgxConf.HealthCheckPeriod)
 	utils.SetAny(varsConf.PoolMaxConnLifetimeJitter, &pgxConf.MaxConnLifetimeJitter)
+
+	if varsConf.UseTls {
+		pgxConf.ConnConfig.TLSConfig, err = secure.GenClientTls(
+			varsConf.TlsHostName, varsConf.TlsCert,
+			varsConf.TlsKey, varsConf.TlsCA)
+	}
+
+	return
 }
 
 // New creates a new pool and checks db connection
@@ -76,10 +86,13 @@ func New(vReader *envvars.VarReader) (*pgxpool.Pool, error) {
 	pgxConf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, errorw.WrapErrorf(
-			clis.ErrorCodeClientConfigFail, err, "Invalid Postgres config")
+			ErrorCodeClientDsnFail, err, "Invalid Postgres dsn")
 	}
 
-	populatePgxDefs(varsConf, pgxConf)
+	if err := populatePgxDefs(varsConf, pgxConf); err != nil {
+		return nil, errorw.WrapErrorf(
+			clis.ErrorCodeClientConfigFail, err, "Invalid Postgres config")
+	}
 
 	pool, err := pgxpool.ConnectConfig(context.Background(), pgxConf)
 	if err != nil {

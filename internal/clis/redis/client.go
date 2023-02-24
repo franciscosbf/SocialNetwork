@@ -23,6 +23,7 @@ import (
 	"github.com/franciscosbf/micro-dwarf/internal/clis/redis/config"
 	"github.com/franciscosbf/micro-dwarf/internal/envvars"
 	"github.com/franciscosbf/micro-dwarf/internal/errorw"
+	"github.com/franciscosbf/micro-dwarf/internal/secure"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -33,8 +34,8 @@ const (
 )
 
 // createClusterConf initializes the cluster options, returning it
-func createClusterConf(varsConf *config.RedisConfig) *redis.ClusterOptions {
-	opts := &redis.ClusterOptions{
+func createClusterConf(varsConf *config.RedisConfig) (opts *redis.ClusterOptions, err error) {
+	opts = &redis.ClusterOptions{
 		// Fields that receive a value by default, regardless
 		// the corresponding variable is defined or not
 
@@ -74,7 +75,13 @@ func createClusterConf(varsConf *config.RedisConfig) *redis.ClusterOptions {
 		opts.RouteRandomly = true
 	}
 
-	return opts
+	if varsConf.UseTls {
+		opts.TLSConfig, err = secure.GenClientTls(
+			varsConf.TlsHostName, varsConf.TlsCert,
+			varsConf.TlsKey, varsConf.TlsCA)
+	}
+
+	return
 }
 
 // pingNode checks connection with a given
@@ -96,7 +103,12 @@ func New(vReader *envvars.VarReader) (*redis.ClusterClient, error) {
 			clis.ErrorCodeVarReader, err, "Couldn't build Redis variables config")
 	}
 
-	cConf := createClusterConf(varsConf)
+	cConf, err := createClusterConf(varsConf)
+	if err != nil {
+		return nil, errorw.WrapErrorf(
+			clis.ErrorCodeClientConfigFail, err, "Invalid Redis config options")
+	}
+
 	cli := redis.NewClusterClient(cConf)
 
 	// Iterates over all nodes to perform a heath-check

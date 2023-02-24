@@ -29,8 +29,9 @@ import (
 
 func unsetVars() {
 	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "POSTGRES_") {
-			_ = os.Unsetenv(v)
+		key := strings.Split(v, "=")[0]
+		if strings.HasPrefix(key, "POSTGRES_") {
+			_ = os.Unsetenv(key)
 		}
 	}
 }
@@ -39,7 +40,7 @@ func setVar(key, value string) {
 	_ = os.Setenv(key, value)
 }
 
-func TestValidConnection(t *testing.T) {
+func checkConn(t *testing.T) {
 	defer unsetVars()
 
 	envProvider := providers.NewEnvVariables()
@@ -47,14 +48,22 @@ func TestValidConnection(t *testing.T) {
 
 	cli, err := New(reader)
 	if err != nil {
-		t.Errorf("Unexpect error: %v", err)
+		t.Errorf("Unexpected error: %v", err)
 	}
 
 	if cli == nil {
-		t.Errorf("Client should not be nil")
-	} else {
-		cli.Close()
+		t.Errorf("Unexpect nil client")
 	}
+}
+
+func TestValidConnection(t *testing.T) {
+	checkConn(t)
+}
+
+func TestValidSecureConnection(t *testing.T) {
+	setVar("POSTGRES_TLS", "true")
+
+	checkConn(t)
 }
 
 func TestInvalidConnection(t *testing.T) {
@@ -102,7 +111,7 @@ func TestInvalidConnection(t *testing.T) {
 			},
 		},
 		{
-			name: "TestPgxConfFailure",
+			name: "TestPgxDsnFailure",
 			test: func(t *testing.T) {
 				defer unsetVars()
 
@@ -110,6 +119,25 @@ func TestInvalidConnection(t *testing.T) {
 				setVar("POSTGRES_PASSWORD_SECRET", "password")
 				setVar("POSTGRES_HOST", "localhost")
 				setVar("POSTGRES_DBNAME", "\"databa     ")
+
+				envProvider := providers.NewEnvVariables()
+				reader := envvars.New(envProvider)
+
+				cli, err := New(reader)
+				checkErrorCode(t, cli, err, ErrorCodeClientDsnFail, "ErrorCodeClientDsnFail")
+			},
+		},
+		{
+			name: "TestPgxConfigFailure",
+			test: func(t *testing.T) {
+				defer unsetVars()
+
+				setVar("POSTGRES_USER_SECRET", "user")
+				setVar("POSTGRES_PASSWORD_SECRET", "password")
+				setVar("POSTGRES_HOST", "localhost")
+				setVar("POSTGRES_DBNAME", "database")
+
+				setVar("POSTGRES_TLS", "true")
 
 				envProvider := providers.NewEnvVariables()
 				reader := envvars.New(envProvider)

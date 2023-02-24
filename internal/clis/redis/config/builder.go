@@ -31,6 +31,14 @@ type RedisConfig struct {
 	Username string       `name:"REDIS_USERNAME_SECRET"`
 	Password string       `name:"REDIS_PASSWORD_SECRET"`
 
+	// Secure connection
+
+	UseTls      bool   `name:"REDIS_TLS"`
+	TlsHostName string `name:"REDIS_TLS_HOSTNAME_SECRET"`
+	TlsCert     string `name:"REDIS_TLS_CERT_SECRET"`
+	TlsKey      string `name:"REDIS_TLS_KEY_SECRET"`
+	TlsCA       string `name:"REDIS_TLS_CA_SECRET"`
+
 	// Connection and pool configurations
 
 	RouteMode             string        `name:"REDIS_ROUTE_MODE" accepts:"latency,randomly"`

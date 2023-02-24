@@ -35,6 +35,14 @@ type PostgresConfig struct {
 	Dbname   string `name:"POSTGRES_DBNAME" required:"yes"`
 	SslMode  string `name:"POSTGRES_SSL_MODE" accepts:"disable,allow,prefer,require,verify-ca,verify-full"`
 
+	// Secure connection
+
+	UseTls      bool   `name:"POSTGRES_TLS"`
+	TlsHostName string `name:"POSTGRES_TLS_HOSTNAME_SECRET"`
+	TlsCert     string `name:"POSTGRES_TLS_CERT_SECRET"`
+	TlsKey      string `name:"POSTGRES_TLS_KEY_SECRET"`
+	TlsCA       string `name:"POSTGRES_TLS_CA_SECRET"`
+
 	// Pool configuration
 
 	PoolMaxCons               int32         `name:"POSTGRES_POOL_MAX_CONS"`
