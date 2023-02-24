@@ -71,7 +71,7 @@ if [ "$HAS_RELEASE" != "[]" ]; then
 fi
 
 # Checks if contains the name label
-HAS_LABEL=$(cat redis-namespace.yaml | yq -M -r ".metadata.labels.name")
+HAS_LABEL=$(cat $NAMESPACE_FILE | yq -M -r ".metadata.labels.name")
 if [ "$HAS_LABEL" = "null" ]; then
   panic "missing .metadata.labels.name in namespace file $NAMESPACE_FILE"
 fi
