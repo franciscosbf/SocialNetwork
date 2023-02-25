@@ -35,8 +35,9 @@ subsystems/
       core/ - internal implementation 
       errors/ - error codes
       storage/ - persistency things
-        db/ (?) - auto generated code for database
-        |other related components like caching and bridge between db cli and external access|
+        repo/ - repository (db things)
+          db/ (?) - auto generated code for database
+        cache/ - store
       events/ (?) - publish/subscribe things 
       proto/ (?) - auto generated code for communications via gRPC
 ```
