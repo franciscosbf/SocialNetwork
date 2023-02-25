@@ -1,17 +1,19 @@
 ### cmd/
 
 ```text
-for each <subsystem>/:
-  for each  <service>/:
-    <service>.go - service launcher
+subsystems/
+  for each <subsystem>/:
+    for each  <service>/:
+      <service>.go - service launcher
 ```
 
 ### pkg/
 
 ```text
-for each <subsystem>/:
-  for each  <service>/:
-    |init calls used for service startup| 
+subsystems/
+  for each <subsystem>/:
+    for each  <service>/:
+      |init calls used for service startup| 
 ```
 
 ### internal/
