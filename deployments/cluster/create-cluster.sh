@@ -10,6 +10,8 @@ print() {
   echo "cluster creation info: $@"
 }
 
+source ./cluster-name.sh
+
 CLI_CONF="$HOME/.kube/config"
 if ! [ -z "$1" ]; then
   CLI_CONF=$1
@@ -27,7 +29,8 @@ install() {
     panic "config file $CLUSTER_CONFIG is missing"
   fi
 
-  CLUSTER_NAME="micro-dwarf-cluster"
+  CLUSTER_NAME=$1
+  KUBECTL_CONF=$2
 
   # Create cluster and store client config
   kind create cluster --config $CLUSTER_CONFIG --name $CLUSTER_NAME && \
@@ -65,7 +68,7 @@ EOF
 read -p "Do you need sudo? [Y/N] " yn
 case $yn in
     [Yy]* ) DECLARATIONS=$(declare -f install panic print); \
-              sudo sh -c "KUBECTL_CONF=$CLI_CONF; $DECLARATIONS; install"; \
+              sudo sh -c "$DECLARATIONS; install $CLUSTER $CLI_CONF"; \
               break;;
-    * ) install;;
+    * ) install $CLI_CONF $CLUSTER;;
 esac
