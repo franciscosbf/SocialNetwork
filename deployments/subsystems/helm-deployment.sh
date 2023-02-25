@@ -3,12 +3,12 @@
 
 # Echoes something and exists with 1
 panic() {
-  echo "error: $@"; exit 1
+  echo "deployment error: $@"; exit 1
 }
 
 # Echoes something
 print() {
-  echo "info: $@"
+  echo "deployment info: $@"
 }
 
 # Checks if a given set of variables is defined

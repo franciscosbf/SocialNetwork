@@ -7,4 +7,4 @@ CHART_NAME="postgresql"
 VALUES_FILE="values.yaml"
 NAMESPACE_FILE="../accounts-namespace.yaml"
 
-source ../../common/helm-deployment.sh
+source ../../helm-deployment.sh

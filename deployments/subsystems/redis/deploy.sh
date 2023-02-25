@@ -7,4 +7,11 @@ CHART_NAME="redis-cluster"
 VALUES_FILE="values.yaml"
 NAMESPACE_FILE="redis-namespace.yaml"
 
-source ../common/helm-deployment.sh
+source ../helm-deployment.sh
+
+EXTERNAL_NAMESPACES="accounts"
+EXTERNAL_SECRET="redis-tls"
+TLS_SECRET="redis-cluster-crt"
+
+source ../bitnami-tls-secret.sh
+
