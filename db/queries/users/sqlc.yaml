@@ -6,7 +6,7 @@ sql:
     gen:
       go:
         package: "db"
-        out: "../../../internal/subsystems/accounts/users/storage/db"
+        out: "../../../internal/subsystems/accounts/users/storage/repo/db"
         sql_package: "pgx/v4"
         overrides:
           - db_type: "geography"
